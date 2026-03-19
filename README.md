@@ -104,6 +104,6 @@ Los pasos para levantarlo son:
 1. Tener docker instalado en el SO del host
 2. Disponer de acceso a internet o de las imágenes necesarias ya descargadas en el host
 3. Posicionarse en la ubicación del archivo sdmd.yaml
-4. Ejecutar el comando que levanta el stack: docker compose up -d
+4. Ejecutar el comando que levanta el stack: ```docker compose up -d```
 
 El archivo sdmd.yaml contiene todas las configuraciones necesarias para que los distintos contenedores se levanten en el orden adecuado y puedan comunicarse entre sí. 
