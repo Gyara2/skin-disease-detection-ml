@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+
+.DS_Store
+
+data/models/*.keras
+data/models/*_classes.json
+data/models/*_metadata.json
+!data/models/.gitkeep
