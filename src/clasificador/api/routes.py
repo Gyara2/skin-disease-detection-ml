@@ -11,15 +11,15 @@ from uuid import uuid4
 
 from flask import Blueprint, jsonify, request
 
-from src.api.config import (
+from src.clasificador.api.config import (
     DEFAULT_CLASS_NAMES_PATH,
     DEFAULT_DATASET_DIR,
     DEFAULT_MODEL_PATH,
     MODELS_DIR,
 )
-from src.ml.inference import Predictor
-from src.ml.training import TrainingConfig, train_model
-from src.ml.utils import is_allowed_image_filename
+from src.clasificador.ml.inference import Predictor
+from src.clasificador.ml.training import TrainingConfig, train_model
+from src.clasificador.ml.utils import is_allowed_image_filename
 
 api_bp = Blueprint("api", __name__)
 
@@ -80,9 +80,21 @@ def _coerce_training_config(payload: dict[str, Any]) -> TrainingConfig:
     if not isinstance(image_size_payload, list) or len(image_size_payload) != 2:
         raise ValueError("image_size must be a list with two integers, e.g. [224, 224].")
 
+    train_dir = payload.get("train_dir")
+    val_dir = payload.get("val_dir")
+    test_dir = payload.get("test_dir")
+    explicit_split_values = [train_dir, val_dir, test_dir]
+    if any(value is not None for value in explicit_split_values) and not all(
+        value is not None for value in explicit_split_values
+    ):
+        raise ValueError("train_dir, val_dir and test_dir must be provided together.")
+
     return TrainingConfig(
         data_dir=Path(payload.get("data_dir", str(DEFAULT_DATASET_DIR))),
         model_dir=Path(payload.get("model_dir", str(MODELS_DIR))),
+        train_dir=Path(train_dir) if train_dir is not None else None,
+        val_dir=Path(val_dir) if val_dir is not None else None,
+        test_dir=Path(test_dir) if test_dir is not None else None,
         image_size=(int(image_size_payload[0]), int(image_size_payload[1])),
         batch_size=int(payload.get("batch_size", 32)),
         epochs=int(payload.get("epochs", 10)),

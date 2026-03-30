@@ -61,6 +61,8 @@ data/raw/train/
 		img3.jpg
 ```
 
+Para usar HAM10000 (7 clases), puedes preparar el dataset automáticamente con el script incluido en `training/prep_ham10000.py`.
+
 ## Instalación
 
 ```bash
@@ -131,6 +133,23 @@ curl -X POST http://127.0.0.1:5000/api/train \
 	}'
 ```
 
+Para entrenar con splits explícitos (sin `validation_split`):
+
+```bash
+curl -X POST http://127.0.0.1:5000/api/train \
+	-H "Content-Type: application/json" \
+	-d '{
+		"train_dir": "data/raw/ham10000/splits/train",
+		"val_dir": "data/raw/ham10000/splits/val",
+		"test_dir": "data/raw/ham10000/splits/test",
+		"epochs": 10,
+		"batch_size": 32,
+		"image_size": [224, 224],
+		"seed": 42,
+		"model_name": "skin_cnn"
+	}'
+```
+
 Respuesta inmediata (HTTP 202):
 
 ```json
@@ -159,6 +178,58 @@ python training/train_runner.py \
 	--batch-size 32 \
 	--image-size 224 224
 ```
+
+### Preparar HAM10000 en formato train/val/test
+
+Estructura esperada de entrada (descarga de HAM10000):
+
+```text
+data/raw/ham10000/source/
+	HAM10000_metadata.csv
+	HAM10000_images_part_1/
+		ISIC_*.jpg
+	HAM10000_images_part_2/
+		ISIC_*.jpg
+```
+
+Preparación reproducible y estratificada por clase:
+
+```bash
+python training/prep_ham10000.py \
+	--metadata-csv data/raw/ham10000/source/HAM10000_metadata.csv \
+	--images-dir data/raw/ham10000/source/HAM10000_images_part_1 data/raw/ham10000/source/HAM10000_images_part_2 \
+	--output-dir data/raw/ham10000/splits \
+	--train-ratio 0.7 \
+	--val-ratio 0.15 \
+	--test-ratio 0.15 \
+	--seed 42
+```
+
+El script genera:
+
+```text
+data/raw/ham10000/splits/
+	train/<clase>/*.jpg
+	val/<clase>/*.jpg
+	test/<clase>/*.jpg
+	split_manifest.csv
+	split_summary.json
+```
+
+### Entrenamiento con splits explícitos (recomendado para HAM10000)
+
+```bash
+python training/train_runner.py \
+	--train-dir data/raw/ham10000/splits/train \
+	--val-dir data/raw/ham10000/splits/val \
+	--test-dir data/raw/ham10000/splits/test \
+	--model-dir data/models \
+	--epochs 10 \
+	--batch-size 32 \
+	--image-size 224 224
+```
+
+Cuando se usan `--train-dir`, `--val-dir` y `--test-dir`, el entrenamiento no aplica `validation_split` y evalúa métricas finales sobre `test`.
 
 ## Artefactos generados
 
