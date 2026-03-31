@@ -1,8 +1,8 @@
 import argparse
 from pathlib import Path
 
-from src.clasificador.api.config import DEFAULT_DATASET_DIR, MODELS_DIR
-from src.clasificador.ml.training import TrainingConfig, train_model
+from ..api.config import DEFAULT_DATASET_DIR, MODELS_DIR
+from ..ml.training import TrainingConfig, train_model
 
 
 def parse_args() -> argparse.Namespace:

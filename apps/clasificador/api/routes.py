@@ -11,15 +11,15 @@ from uuid import uuid4
 
 from flask import Blueprint, jsonify, request
 
-from src.clasificador.api.config import (
+from .config import (
     DEFAULT_CLASS_NAMES_PATH,
     DEFAULT_DATASET_DIR,
     DEFAULT_MODEL_PATH,
     MODELS_DIR,
 )
-from src.clasificador.ml.inference import Predictor
-from src.clasificador.ml.training import TrainingConfig, train_model
-from src.clasificador.ml.utils import is_allowed_image_filename
+from ..ml.inference import Predictor
+from ..ml.training import TrainingConfig, train_model
+from ..ml.utils import is_allowed_image_filename
 
 api_bp = Blueprint("api", __name__)
 

@@ -1,4 +1,4 @@
-from src.clasificador.api import create_app
+from clasificador.api import create_app
 
 app = create_app()
 

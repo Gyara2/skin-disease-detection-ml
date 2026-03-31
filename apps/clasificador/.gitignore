@@ -10,10 +10,10 @@ env/
 .DS_Store
 
 # Keep trained model artifacts versioned
-!data/models/*.keras
-!data/models/*_classes.json
-!data/models/*_metadata.json
-!data/models/.gitkeep
+!models/*.keras
+!models/*_classes.json
+!models/*_metadata.json
+!models/.gitkeep
 
 # Ignore all dataset/raw material
 data/raw/

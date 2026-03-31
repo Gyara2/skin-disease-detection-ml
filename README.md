@@ -40,11 +40,13 @@ Se ha implementado una API REST con Flask y dos módulos reutilizables:
 
 Estructura relevante:
 
-- `src/api/` - capa REST (`/api/health`, `/api/predict`, `/api/train`, `/api/jobs/<job_id>`)
-- `src/ml/training.py` - lógica de entrenamiento reutilizable
-- `src/ml/inference.py` - lógica de predicción reutilizable
-- `training/train_runner.py` - ejecución manual de entrenamiento por CLI
-- `main.py` - punto de entrada de la API Flask
+- `apps/clasificador/api/` - capa REST (`/api/health`, `/api/predict`, `/api/train`, `/api/jobs/<job_id>`)
+- `apps/clasificador/ml/training.py` - lógica de entrenamiento reutilizable
+- `apps/clasificador/ml/inference.py` - lógica de predicción reutilizable
+- `apps/clasificador/training/train_runner.py` - ejecución manual de entrenamiento por CLI
+- `apps/clasificador/main.py` - punto de entrada de la API Flask
+- `apps/clasificador/models/` - modelos entrenados y archivos de configuración
+- `apps/clasificador/data/raw/` - datos crudos del dataset
 - `environment/requirements.txt` - dependencias del proyecto
 
 ## Requisitos
@@ -61,7 +63,7 @@ data/raw/train/
 		img3.jpg
 ```
 
-Para usar HAM10000 (7 clases), puedes preparar el dataset automáticamente con el script incluido en `training/prep_ham10000.py`.
+Para usar HAM10000 (7 clases), puedes preparar el dataset automáticamente con el script incluido en `apps/clasificador/training/prep_ham10000.py`.
 
 ## Instalación
 
@@ -74,7 +76,7 @@ pip install -r environment/requirements.txt
 ## Ejecutar API Flask
 
 ```bash
-python main.py
+python apps/clasificador/main.py
 ```
 
 API disponible en `http://127.0.0.1:5000`.

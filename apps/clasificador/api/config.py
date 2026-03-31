@@ -1,9 +1,9 @@
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-DATA_DIR = PROJECT_ROOT / "data"
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DATA_DIR = PROJECT_ROOT / "apps" / "clasificador" / "data"
 RAW_DATA_DIR = DATA_DIR / "raw"
-MODELS_DIR = DATA_DIR / "models"
+MODELS_DIR = PROJECT_ROOT / "apps" / "clasificador" / "models"
 DEFAULT_DATASET_DIR = RAW_DATA_DIR / "train"
 DEFAULT_MODEL_PATH = MODELS_DIR / "skin_cnn.keras"
 DEFAULT_CLASS_NAMES_PATH = MODELS_DIR / "skin_cnn_classes.json"
