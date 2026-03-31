@@ -35,6 +35,18 @@ class Predictor:
         if self._model is None:
             if not self.model_path.exists():
                 raise FileNotFoundError(f"Model file not found: {self.model_path}")
+
+            # Guard against Git LFS pointer files committed instead of real model binaries.
+            try:
+                header = self.model_path.read_text(encoding="utf-8", errors="ignore")[:200]
+            except OSError:
+                header = ""
+            if "git-lfs.github.com/spec/v1" in header:
+                raise FileNotFoundError(
+                    "Model artifact is a Git LFS pointer, not the real .keras file. "
+                    "Run `git lfs pull` in the repository to download model binaries."
+                )
+
             self._model = keras.models.load_model(self.model_path)
 
         if self._class_names is None:

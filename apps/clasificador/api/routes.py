@@ -119,6 +119,27 @@ def _run_training_job(job_id: str, payload: dict[str, Any]) -> None:
         )
 
 
+def _resolve_default_prediction_artifacts() -> tuple[Path, Path]:
+    default_model_path = DEFAULT_MODEL_PATH
+    default_class_names_path = DEFAULT_CLASS_NAMES_PATH
+
+    if default_model_path.exists() and default_class_names_path.exists():
+        return default_model_path, default_class_names_path
+
+    model_candidates = sorted(
+        MODELS_DIR.glob("*.keras"),
+        key=lambda path: path.stat().st_mtime,
+        reverse=True,
+    )
+
+    for model_path in model_candidates:
+        class_names_path = model_path.with_name(f"{model_path.stem}_classes.json")
+        if class_names_path.exists():
+            return model_path, class_names_path
+
+    return default_model_path, default_class_names_path
+
+
 @api_bp.get("/health")
 def health() -> tuple[Any, int]:
     return jsonify({"status": "ok"}), 200
@@ -136,8 +157,9 @@ def predict() -> tuple[Any, int]:
     if not is_allowed_image_filename(file.filename):
         return jsonify({"error": "Unsupported image extension."}), 400
 
-    model_path = Path(request.form.get("model_path", str(DEFAULT_MODEL_PATH)))
-    class_names_path = Path(request.form.get("class_names_path", str(DEFAULT_CLASS_NAMES_PATH)))
+    default_model_path, default_class_names_path = _resolve_default_prediction_artifacts()
+    model_path = Path(request.form.get("model_path", str(default_model_path)))
+    class_names_path = Path(request.form.get("class_names_path", str(default_class_names_path)))
 
     cache_key = f"{model_path.resolve()}::{class_names_path.resolve()}"
     with predictors_lock:
