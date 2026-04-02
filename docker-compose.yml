@@ -1,0 +1,15 @@
+version: '3.9'
+
+services:
+  frontend:
+    build:
+      context: ./apps/frontend
+    container_name: frontend
+    ports:
+      - '5173:5173'
+    volumes:
+      - ./apps/frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_USE_MOCK=true
+    command: npm run dev -- --host
