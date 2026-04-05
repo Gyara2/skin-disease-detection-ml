@@ -88,3 +88,24 @@ class Predictor:
     def predict_file(self, image_path: Path, top_k: int = 3) -> PredictionResult:
         image_bytes = image_path.read_bytes()
         return self.predict_bytes(image_bytes=image_bytes, top_k=top_k)
+
+    def predict_probabilities(self, image_bytes: bytes) -> dict[str, float]:
+        self._load_artifacts()
+
+        try:
+            image = Image.open(BytesIO(image_bytes)).convert("RGB")
+        except (UnidentifiedImageError, OSError) as exc:
+            raise ValueError("Uploaded file is not a valid image.") from exc
+
+        image = image.resize(self.image_size)
+        image_array = np.array(image, dtype=np.float32) / 255.0
+        image_array = np.expand_dims(image_array, axis=0)
+
+        probabilities = self._model.predict(image_array, verbose=0)[0]
+        if self._class_names is None:
+            raise ValueError("Class names are not loaded.")
+
+        return {
+            self._class_names[int(idx)]: float(probabilities[int(idx)])
+            for idx in range(len(self._class_names))
+        }

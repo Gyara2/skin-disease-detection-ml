@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import traceback
 from concurrent.futures import Future, ThreadPoolExecutor
 from dataclasses import dataclass, field
@@ -147,19 +148,24 @@ def health() -> tuple[Any, int]:
 
 @api_bp.post("/predict")
 def predict() -> tuple[Any, int]:
-    if "image" not in request.files:
-        return jsonify({"error": "Missing file field 'image'."}), 400
+    payload = request.get_json(silent=True) or {}
 
-    file = request.files["image"]
-    if not file or not file.filename:
-        return jsonify({"error": "No image filename provided."}), 400
+    if "image_base64" not in payload:
+        return jsonify({"error": "Missing 'image_base64' field."}), 400
 
-    if not is_allowed_image_filename(file.filename):
-        return jsonify({"error": "Unsupported image extension."}), 400
+    if "id_imagen" not in payload:
+        return jsonify({"error": "Missing 'id_imagen' field."}), 400
+
+    try:
+        image_bytes = base64.b64decode(payload["image_base64"])
+    except Exception as exc:
+        return jsonify({"error": f"Invalid base64 image: {exc}"}), 400
+
+    id_imagen = payload["id_imagen"]
 
     default_model_path, default_class_names_path = _resolve_default_prediction_artifacts()
-    model_path = Path(request.form.get("model_path", str(default_model_path)))
-    class_names_path = Path(request.form.get("class_names_path", str(default_class_names_path)))
+    model_path = Path(payload.get("model_path", str(default_model_path)))
+    class_names_path = Path(payload.get("class_names_path", str(default_class_names_path)))
 
     cache_key = f"{model_path.resolve()}::{class_names_path.resolve()}"
     with predictors_lock:
@@ -169,7 +175,7 @@ def predict() -> tuple[Any, int]:
             predictors[cache_key] = predictor
 
     try:
-        prediction = predictor.predict_bytes(file.read())
+        probabilities = predictor.predict_probabilities(image_bytes)
     except FileNotFoundError as exc:
         return jsonify({"error": str(exc)}), 404
     except ValueError as exc:
@@ -177,16 +183,10 @@ def predict() -> tuple[Any, int]:
     except Exception as exc:  # noqa: BLE001
         return jsonify({"error": f"Prediction failed: {exc}"}), 500
 
-    return (
-        jsonify(
-            {
-                "predicted_class": prediction.predicted_class,
-                "confidence": prediction.confidence,
-                "top_k": prediction.top_k,
-            }
-        ),
-        200,
-    )
+    response_data = {"id_imagen": id_imagen}
+    response_data.update(probabilities)
+
+    return jsonify(response_data), 200
 
 
 @api_bp.post("/train")
