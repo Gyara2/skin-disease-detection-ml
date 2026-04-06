@@ -1,9 +1,9 @@
 import type {
+  CasoDetalle,
   CasoDetalleDTO,
   UsuarioDTO,
-} from '../types/caso-detalle.types';
+} from '@/shared/types';
 import { estadoCasoMap } from '../constants/estado-caso';
-import type { CasoDetalle } from '../types/caso-detalle.types';
 
 const mapUsuario = (user: UsuarioDTO) => ({
   id: user.id,

@@ -1,7 +1,9 @@
-export type Rol = 'PACIENTE' | 'ESPECIALISTA' | 'ADMIN';
-
-export interface Usuario {
-  id: string;
-  nombre: string;
-  rol: Rol;
-}
+export * from './usuario.model';
+export * from './caso.dto';
+export * from './caso.model';
+export * from './caso-detalle.dto';
+export * from './caso-detalle.model';
+export * from './resumen.dto';
+export * from './resumen.model';
+export * from './metricas.dto';
+export * from './metricas.model';

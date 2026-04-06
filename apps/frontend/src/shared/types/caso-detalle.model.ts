@@ -1,4 +1,6 @@
-export interface Usuario {
+import type { EstadoCaso } from './caso.model';
+
+export interface UsuarioCaso {
   id: string;
   nombreCompleto: string;
 }
@@ -11,14 +13,11 @@ export interface Diagnostico {
 
 export interface CasoDetalle {
   id: string;
-  estado: string;
+  estado: EstadoCaso;
   estadoLabel: string;
   estadoColor: string;
-
-  paciente: Usuario;
-  especialista: Usuario;
-
+  paciente: UsuarioCaso;
+  especialista: UsuarioCaso;
   diagnosticos: Diagnostico[];
-
   creado: Date;
 }

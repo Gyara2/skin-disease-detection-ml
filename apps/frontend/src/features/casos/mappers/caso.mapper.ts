@@ -1,6 +1,6 @@
+import type { Caso, CasoDTO } from '@/shared/types';
 import { estadoCasoMap } from '../constants/estado-caso';
 import { usuarioCasoNombrePorId } from '../mocks/usuarios-casos.mock';
-import type { Caso, CasoDTO } from '../types/caso.types';
 
 export const mapCasoToModel = (dto: CasoDTO): Caso => {
   const estadoInfo = estadoCasoMap[dto.estado];

@@ -1,3 +1,5 @@
+import type { EstadoCaso } from './caso.model';
+
 export interface UsuarioDTO {
   id: string;
   nombre: string;
@@ -13,11 +15,9 @@ export interface DiagnosticoDTO {
 
 export interface CasoDetalleDTO {
   id: string;
-  estado: string;
+  estado: EstadoCaso;
   creado: string;
-
   paciente: UsuarioDTO;
   especialista: UsuarioDTO;
-
   diagnosticos: DiagnosticoDTO[];
 }
