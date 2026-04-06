@@ -18,15 +18,13 @@ Las imágenes proporcionadas por el usuario se utilizarán exclusivamente para l
 - Álvaro Guirado Cárdenas
 - Diego Hernando Torralba
 - Javier García Hernández
-- Raúl Gallardo Risco
 
 ## Organización del repositorio
 
 El repositorio se estructura en distintos bloques funcionales, cada uno orientado a una parte concreta del sistema:
 
-- `ml/` → desarrollo, análisis, entrenamiento y evaluación del modelo de machine learning
-- `dashboard/` → cliente web para la interacción con el usuario
-- `monitoring/` → métricas, seguimiento y observabilidad del sistema
-- `docs/` → documentación técnica y de diseño
+- `apps/model/` → desarrollo, análisis, entrenamiento y evaluación del modelo de machine learning
+- `apps/frontend/` → cliente web para la interacción con el usuario
+- `apps/backend` → backend del sistema
 
 Esta organización busca facilitar la escalabilidad, el mantenimiento y la separación clara de responsabilidades dentro del proyecto.
