@@ -52,7 +52,7 @@ export const LoginPage = () => {
               Skin Disease ML
             </p>
             <h1 className='mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl'>
-              Iniciar sesion
+              Iniciar sesión
             </h1>
             <p className='mt-3 text-sm leading-7 text-slate-600'>
               Selecciona un usuario para acceder al sistema.
