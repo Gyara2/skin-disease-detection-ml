@@ -51,20 +51,6 @@ const PREDICCION_LABELS = [
   'Lesion a revisar',
 ] as const;
 
-const buildUsuarioFromNombreCompleto = (
-  id: string,
-  nombreCompleto: string,
-): UsuarioDTO => {
-  const [nombre, apellido1 = '', ...restoApellidos] = nombreCompleto.split(' ');
-
-  return {
-    id,
-    nombre,
-    apellido1,
-    apellido2: restoApellidos.join(' '),
-  };
-};
-
 const cloneUsuario = (usuario: UsuarioDTO): UsuarioDTO => ({
   ...usuario,
 });
@@ -124,7 +110,12 @@ const getUsuarioDetalleById = (usuarioId: string): UsuarioDTO => {
     throw new Error('No se ha encontrado el usuario indicado');
   }
 
-  return buildUsuarioFromNombreCompleto(usuario.id, usuario.nombre);
+  return {
+    id: usuario.id,
+    nombre: usuario.nombre,
+    apellido1: usuario.apellido1,
+    apellido2: usuario.apellido2,
+  };
 };
 
 const assertUsuarioRol = (

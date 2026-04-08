@@ -17,16 +17,11 @@ import { useCasos } from '@/features/casos/hooks/useCasos';
 import { useUsuarios } from '@/features/usuarios/hooks/useUsuarios';
 import { CustomSelect } from '@/shared/components/CustomSelect';
 import { PaginationControls } from '@/shared/components/PaginationControls';
-import {
-  fileToImageBase64,
-  validateImageFile,
-} from '@/shared/lib/image-file';
+import { fileToImageBase64, validateImageFile } from '@/shared/lib/image-file';
+import { getUsuarioNombreCompleto } from '@/shared/types';
 import { useEffect, useState, type ChangeEvent, type FormEvent } from 'react';
 
-const getErrorMessage = (
-  error: unknown,
-  fallback: string,
-): string => {
+const getErrorMessage = (error: unknown, fallback: string): string => {
   return error instanceof Error ? error.message : fallback;
 };
 
@@ -90,11 +85,11 @@ export const CasosPage = () => {
   );
   const pacientesOptions = pacientesDisponibles.map((paciente) => ({
     value: paciente.id,
-    label: paciente.nombre,
+    label: getUsuarioNombreCompleto(paciente),
   }));
   const especialistasOptions = especialistasRegistrados.map((especialista) => ({
     value: especialista.id,
-    label: especialista.nombre,
+    label: getUsuarioNombreCompleto(especialista),
   }));
   const especialistaFilterOptions = [
     { value: 'todos', label: 'Todos' },
@@ -209,7 +204,9 @@ export const CasosPage = () => {
           {nuevaImagenBase64 ? (
             <img
               src={nuevaImagenBase64}
-              alt={nuevaImagenNombre || 'Vista previa de la imagen seleccionada'}
+              alt={
+                nuevaImagenNombre || 'Vista previa de la imagen seleccionada'
+              }
               className='h-full w-full object-cover'
             />
           ) : (
@@ -271,7 +268,10 @@ export const CasosPage = () => {
       setNuevaImagenBase64('');
       setNuevaImagenNombre('');
       setImagenArchivoFeedback(
-        getErrorMessage(fileError, 'No se pudo procesar la imagen seleccionada.'),
+        getErrorMessage(
+          fileError,
+          'No se pudo procesar la imagen seleccionada.',
+        ),
       );
       event.target.value = '';
     }
@@ -282,7 +282,9 @@ export const CasosPage = () => {
     setCrearCasoFeedback(null);
 
     const especialistaSeleccionadoId =
-      rolUsuario === 'ESPECIALISTA' ? usuario?.id ?? '' : nuevoCasoEspecialistaId;
+      rolUsuario === 'ESPECIALISTA'
+        ? (usuario?.id ?? '')
+        : nuevoCasoEspecialistaId;
 
     if (
       !nuevoCasoPacienteId ||
@@ -448,7 +450,10 @@ export const CasosPage = () => {
             </p>
           </div>
 
-          <form className='mt-5 grid gap-3 md:grid-cols-2' onSubmit={handleCrearCaso}>
+          <form
+            className='mt-5 grid gap-3 md:grid-cols-2'
+            onSubmit={handleCrearCaso}
+          >
             <CustomSelect
               label='Paciente'
               value={nuevoCasoPacienteId}
@@ -562,7 +567,7 @@ export const CasosPage = () => {
       <div className='flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between'>
         <div>
           <p className='text-xs font-medium uppercase tracking-[0.28em] text-sky-700'>
-            Administracion
+            Administración
           </p>
           <h1 className='mt-2 text-2xl font-semibold tracking-tight text-slate-950'>
             Todos los casos
@@ -607,7 +612,10 @@ export const CasosPage = () => {
             </p>
           </div>
 
-          <form className='mt-5 grid gap-3 md:grid-cols-2' onSubmit={handleCrearCaso}>
+          <form
+            className='mt-5 grid gap-3 md:grid-cols-2'
+            onSubmit={handleCrearCaso}
+          >
             <CustomSelect
               label='Paciente'
               value={nuevoCasoPacienteId}
@@ -670,13 +678,22 @@ export const CasosPage = () => {
           </p>
           <div className='mt-4 space-y-3 text-sm text-slate-600'>
             <p>
-              Pacientes registrados: <span className='font-medium text-slate-950'>{pacientesDisponibles.length}</span>
+              Pacientes registrados:{' '}
+              <span className='font-medium text-slate-950'>
+                {pacientesDisponibles.length}
+              </span>
             </p>
             <p>
-              Especialistas activos: <span className='font-medium text-slate-950'>{especialistasRegistrados.length}</span>
+              Especialistas activos:{' '}
+              <span className='font-medium text-slate-950'>
+                {especialistasRegistrados.length}
+              </span>
             </p>
             <p>
-              Casos visibles: <span className='font-medium text-slate-950'>{casosVisibles.length}</span>
+              Casos visibles:{' '}
+              <span className='font-medium text-slate-950'>
+                {casosVisibles.length}
+              </span>
             </p>
           </div>
         </article>
@@ -784,7 +801,9 @@ export const CasosPage = () => {
           ) : null}
         </div>
       ) : (
-        renderEmptyState('No hay casos que coincidan con los filtros seleccionados.')
+        renderEmptyState(
+          'No hay casos que coincidan con los filtros seleccionados.',
+        )
       )}
     </div>
   );

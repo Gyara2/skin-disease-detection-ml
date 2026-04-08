@@ -9,7 +9,7 @@ import {
 
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { useUsuarios } from '@/features/usuarios/hooks/useUsuarios';
-import type { Rol } from '@/shared/types';
+import { getUsuarioNombreCompleto, type Rol } from '@/shared/types';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -91,7 +91,7 @@ export const LoginPage = () => {
                     </span>
                     <span>
                       <span className='block text-sm font-medium text-slate-900'>
-                        {usuario.nombre}
+                        {getUsuarioNombreCompleto(usuario)}
                       </span>
                       <span className='block text-xs uppercase tracking-[0.24em] text-slate-500'>
                         {rolLabel[usuario.rol]}
