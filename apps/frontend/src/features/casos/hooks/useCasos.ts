@@ -1,6 +1,6 @@
-import { getCasos } from '../services/casos.service';
-import type { Caso } from '../types/caso.types';
 import { useQuery } from '@tanstack/react-query';
+import type { Caso } from '@/shared/types';
+import { getCasos } from '../services/caso.service';
 
 export const useCasos = () => {
   return useQuery<Caso[]>({

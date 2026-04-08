@@ -1,4 +1,37 @@
 export type EstadoCaso = 'pendiente' | 'en_proceso' | 'completado';
+export type EstadoPrediccion = 'pendiente' | 'lista' | 'error';
+export type EstadoValidacion = 'pendiente' | 'confirmada' | 'ajustada';
+export type ResultadoClinico =
+  | 'benigno'
+  | 'inflamatorio'
+  | 'sospechoso'
+  | 'requiere_revision';
+
+export interface CrearCasoInput {
+  pacienteId: string;
+  especialistaId: string;
+  imagenBase64: string;
+}
+
+export interface ActualizarEstadoCasoInput {
+  estado: EstadoCaso;
+}
+
+export interface CrearDiagnosticoInput {
+  imagenBase64: string;
+  nota: string;
+}
+
+export interface CrearValidacionInput {
+  prediccionId: string;
+  resultadoFinal: ResultadoClinico;
+  nota?: string;
+}
+
+export interface PrediccionProbabilidad {
+  etiqueta: string;
+  porcentaje: number;
+}
 
 export interface Caso {
   id: string;
@@ -7,9 +40,11 @@ export interface Caso {
   especialistaId: string;
   especialistaNombre: string;
   estado: EstadoCaso;
+  diagnosticosCount: number;
 
   estadoLabel: string;
   estadoColor: string;
 
   creado: Date;
+  actualizado: Date;
 }

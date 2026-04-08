@@ -1,21 +1,24 @@
 import {
   ArrowRight,
   HeartPulse,
+  LoaderCircle,
   ShieldCheck,
   Stethoscope,
   UserRound,
 } from 'lucide-react';
 
-import { mockUsuarios } from '@/features/auth/mocks/mock-usuarios';
 import { useAuthStore } from '@/features/auth/store/auth.store';
+import { useUsuarios } from '@/features/usuarios/hooks/useUsuarios';
+import type { Rol } from '@/shared/types';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 export const LoginPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, login } = useAuthStore();
+  const { data: usuarios = [], error, isLoading } = useUsuarios();
 
-  const rolLabel: Record<(typeof mockUsuarios)[number]['rol'], string> = {
+  const rolLabel: Record<Rol, string> = {
     PACIENTE: 'Paciente',
     ESPECIALISTA: 'Especialista',
     ADMIN: 'Administrador',
@@ -56,17 +59,30 @@ export const LoginPage = () => {
             </p>
           </div>
 
+          {isLoading ? (
+            <div className='mt-8 inline-flex items-center gap-3 text-sm font-medium text-sky-700'>
+              <LoaderCircle className='h-4 w-4 animate-spin' />
+              Cargando usuarios...
+            </div>
+          ) : null}
+
+          {error ? (
+            <div className='mt-8 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700'>
+              No se pudieron cargar los usuarios disponibles.
+            </div>
+          ) : null}
+
           <div className='mt-8 space-y-3'>
-            {mockUsuarios.map((mockUsuario) => {
-              const Icon = rolIcon[mockUsuario.rol];
+            {usuarios.map((usuario) => {
+              const Icon = rolIcon[usuario.rol];
 
               return (
                 <button
-                  key={mockUsuario.id}
+                  key={usuario.id}
                   type='button'
                   className='cursor-pointer inline-flex w-full items-center justify-between gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4 text-left text-sm font-medium text-slate-700 transition hover:border-sky-300 hover:bg-sky-50 hover:text-sky-900'
                   onClick={() => {
-                    login(mockUsuario);
+                    login(usuario);
                   }}
                 >
                   <span className='inline-flex items-center gap-3'>
@@ -75,10 +91,10 @@ export const LoginPage = () => {
                     </span>
                     <span>
                       <span className='block text-sm font-medium text-slate-900'>
-                        {mockUsuario.nombre}
+                        {usuario.nombre}
                       </span>
                       <span className='block text-xs uppercase tracking-[0.24em] text-slate-500'>
-                        {rolLabel[mockUsuario.rol]}
+                        {rolLabel[usuario.rol]}
                       </span>
                     </span>
                   </span>

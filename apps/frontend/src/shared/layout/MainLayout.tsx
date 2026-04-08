@@ -17,12 +17,14 @@ export const MainLayout = () => {
     ? {
         eyebrow: 'Caso',
         title: 'Detalle del caso',
-        description: 'Consulta paciente, especialista y diagnosticos registrados.',
+        description:
+          'Consulta la imagen inicial, la prediccion automatica, el diagnostico clinico y la validacion final.',
       }
     : {
         eyebrow: 'Casos',
         title: 'Listado de casos',
-        description: 'Consulta los casos disponibles, su estado y sus responsables.',
+        description:
+          'Consulta los casos disponibles, su estado, su responsable y el flujo clinico asociado.',
       };
 
   const currentDate = new Intl.DateTimeFormat('es-ES', {
@@ -59,8 +61,8 @@ export const MainLayout = () => {
               Panel de casos
             </h1>
             <p className='text-sm leading-6 text-slate-300'>
-              Vista principal para consultar usuarios, casos y diagnosticos del
-              frontend.
+              Vista principal del flujo clinico: imagen, prediccion,
+              diagnostico y validacion.
             </p>
           </div>
 
@@ -101,7 +103,7 @@ export const MainLayout = () => {
               <div>
                 <p className='font-medium'>Casos clinicos</p>
                 <p className='text-xs text-slate-400'>
-                  Paciente, especialista, estado y diagnosticos
+                  Imagen, prediccion, diagnostico y validacion
                 </p>
               </div>
             </NavLink>

@@ -1,12 +1,5 @@
 import { create } from 'zustand';
-
-export type Rol = 'PACIENTE' | 'ESPECIALISTA' | 'ADMIN';
-
-export interface Usuario {
-  id: string;
-  nombre: string;
-  rol: Rol;
-}
+import type { Usuario } from '@/shared/types';
 
 interface AuthState {
   usuario: Usuario | null;

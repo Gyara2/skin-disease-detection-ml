@@ -1,4 +1,4 @@
-import type { EstadoCaso } from '../types/caso.types';
+import type { EstadoCaso } from '@/shared/types';
 
 export const estadoCasoMap: Record<
   EstadoCaso,
