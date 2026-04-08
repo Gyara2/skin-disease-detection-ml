@@ -9,7 +9,7 @@ import {
 
 import { useAuthStore } from '@/features/auth/store/auth.store';
 import { useUsuarios } from '@/features/usuarios/hooks/useUsuarios';
-import type { Rol } from '@/shared/types';
+import { getUsuarioNombreCompleto, type Rol } from '@/shared/types';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -52,7 +52,7 @@ export const LoginPage = () => {
               Skin Disease ML
             </p>
             <h1 className='mt-3 text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl'>
-              Iniciar sesion
+              Iniciar sesión
             </h1>
             <p className='mt-3 text-sm leading-7 text-slate-600'>
               Selecciona un usuario para acceder al sistema.
@@ -91,7 +91,7 @@ export const LoginPage = () => {
                     </span>
                     <span>
                       <span className='block text-sm font-medium text-slate-900'>
-                        {usuario.nombre}
+                        {getUsuarioNombreCompleto(usuario)}
                       </span>
                       <span className='block text-xs uppercase tracking-[0.24em] text-slate-500'>
                         {rolLabel[usuario.rol]}
