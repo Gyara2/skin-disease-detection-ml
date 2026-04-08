@@ -1,1 +1,6 @@
-export { getCasoDetalle } from './caso.service';
+export {
+  actualizarEstadoCaso,
+  crearDiagnostico,
+  crearValidacion,
+  getCasoDetalle,
+} from './caso.service';

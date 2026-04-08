@@ -22,6 +22,10 @@ export const router = createBrowserRouter([
       },
       {
         path: '/casos/:id',
+        element: <Navigate to='resumen' replace />,
+      },
+      {
+        path: '/casos/:id/:section',
         element: <CasoDetallePage />,
       },
     ],

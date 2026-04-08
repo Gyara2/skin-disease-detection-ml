@@ -1,1 +1,8 @@
-export type { Caso, CasoDTO, EstadoCaso } from '@/shared/types';
+export type {
+  ActualizarEstadoCasoInput,
+  Caso,
+  CasoDTO,
+  CrearCasoInput,
+  CrearDiagnosticoInput,
+  EstadoCaso,
+} from '@/shared/types';
