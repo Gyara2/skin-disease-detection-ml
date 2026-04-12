@@ -16,10 +16,11 @@ public class Rol {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="id_rol")
-    private UUID idRol;
+    @Column(name="rolId")
+    private UUID rolId;
 
-    @Enumerated(EnumType.STRING) // Fuerza a que se guarde 'ADMIN' en lugar de 2
+    @Enumerated(EnumType.STRING) // Esta etiqueta permite guardar el valor del enum como texto,
+    // por defecto MySQL da valores numericos a los enums
     @Column(nullable = false, unique = true)
     private TipoRol nombre;
 
@@ -43,11 +44,11 @@ public class Rol {
 
 
     public UUID getId() {
-        return idRol;
+        return rolId;
     }
 
     public void setId(UUID id) {
-        this.idRol = id;
+        this.rolId = id;
     }
 
     public TipoRol getNombre() {

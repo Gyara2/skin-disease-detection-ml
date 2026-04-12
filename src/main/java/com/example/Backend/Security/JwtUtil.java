@@ -8,10 +8,13 @@ import java.security.Key;
 import java.util.Date;
 import java.util.Map;
 
+/** Clase de utilidad para generar tokens JWT.
+ */
 public class JwtUtil {
 
     // Esto genera una clave secreta aleatoria cada vez que se inicia la aplicación.
     private static final Key KEY = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
     /**
      * Genera un token JWT con los claims proporcionados y el sujeto (username).
      *

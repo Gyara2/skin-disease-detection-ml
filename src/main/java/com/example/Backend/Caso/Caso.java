@@ -17,8 +17,8 @@ public class Caso {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="id_caso")
-    private UUID id_caso;
+    @Column(name="caso_id")
+    private UUID casoId;
 
     private String estado;
 
@@ -36,5 +36,61 @@ public class Caso {
     private LocalDateTime creado;
     private LocalDateTime actualizado;
 
-    // Getters, Setters y métodos @PrePersist/@PreUpdate
+    public UUID getIdCaso() {
+        return casoId;
+    }
+
+    public void setIdCaso(UUID idCaso) {
+        this.casoId = idCaso;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
+    }
+
+    public Usuario getPaciente() {
+        return paciente;
+    }
+
+    public void setPaciente(Usuario paciente) {
+        this.paciente = paciente;
+    }
+
+    public Usuario getEspecialista() {
+        return especialista;
+    }
+
+    public void setEspecialista(Usuario especialista) {
+        this.especialista = especialista;
+    }
+
+    public List<Diagnostico> getDiagnosticos() {
+        return diagnosticos;
+    }
+
+    public void setDiagnosticos(List<Diagnostico> diagnosticos) {
+        this.diagnosticos = diagnosticos;
+    }
+
+    public LocalDateTime getCreado() {
+        return creado;
+    }
+
+    public void setCreado(LocalDateTime creado) {
+        this.creado = creado;
+    }
+
+    public LocalDateTime getActualizado() {
+        return actualizado;
+    }
+
+    public void setActualizado(LocalDateTime actualizado) {
+        this.actualizado = actualizado;
+    }
+
+
 }

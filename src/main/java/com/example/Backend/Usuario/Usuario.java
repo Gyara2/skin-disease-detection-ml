@@ -8,19 +8,35 @@ import java.sql.Date;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/** * Entidad que representa a un usuario en el sistema. Incluye campos para el DNI, nombre, apellidos, edad, sexo, email, contraseña y rol.
+ * Además, tiene campos para la fecha de creación y actualización del usuario.
+ */
 @Entity
 @Table(name = "usuario") // Para que el nombre coincida con el de la BBDD
 public class Usuario {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="id_usuario")
-    private UUID id_usuario;
+    @Column(name="usuarioId")
+    private UUID usuarioID;
     @Column(unique = true, nullable = false) // Esto asegura que el DNI sea único y no nulo en la base de datos
     private String dni;
     private String nombre;
     private String apellido1;
     private String apellido2;
+
+    private Integer edad;
+
+    @Enumerated(EnumType.STRING) // Esta etiqueta permite guardar el valor del enum como texto,
+    // por defecto MySQL da valores numericos a los enums
+    @Column(nullable = false, unique = true)
+    private Sexo sexo;
+
+    public enum Sexo {
+        MASCULINO,
+        FEMENINO,
+        OTRO
+    }
     @Column(unique = true, nullable = false) // Esto asegura que el email sea único y no nulo en la base de datos
     private String email;
 
@@ -53,11 +69,11 @@ public class Usuario {
     // Lista de Getters y Setters
 
     public UUID getId() {
-        return id_usuario;
+        return usuarioID;
     }
 
     public void setId(UUID id) {
-        this.id_usuario = id;
+        this.usuarioID = id;
     }
 
     public String getDni() {
@@ -130,5 +146,21 @@ public class Usuario {
 
     public void setActualizado(LocalDateTime actualizado) {
         this.actualizado = actualizado;
+    }
+
+    public Integer getEdad() {
+        return edad;
+    }
+
+    public void setEdad(Integer edad) {
+        this.edad = edad;
+    }
+
+    public Sexo getSexo() {
+        return sexo;
+    }
+
+    public void setSexo(Sexo sexo) {
+        this.sexo = sexo;
     }
 }

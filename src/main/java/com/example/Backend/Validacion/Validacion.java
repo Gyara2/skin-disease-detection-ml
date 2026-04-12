@@ -7,6 +7,9 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+/** Entidad que representa la validación de una predicción por parte de un especialista.
+ * Contiene información sobre el resultado final, notas del especialista y la fecha de creación.
+ */
 @Entity
 @Table(name = "validacion")
 public class Validacion {

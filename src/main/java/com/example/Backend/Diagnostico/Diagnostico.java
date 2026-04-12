@@ -6,6 +6,7 @@ import com.example.Backend.Prediccion.Prediccion;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -17,22 +18,67 @@ import java.util.UUID;
 public class Diagnostico {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="id_diagnostico")
-    private UUID id_diagnostico;
+    @Column(name="diagnostico_id")
+    private UUID diagnosticoId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "caso_id")
     private Caso caso;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "imagen_id")
-    private Imagen imagen;
+    @OneToMany(mappedBy = "diagnostico", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Imagen> imagenes = new ArrayList<>();
 
     private String nota;
     private LocalDateTime creado;
 
-    @OneToMany(mappedBy = "diagnostico", cascade = CascadeType.ALL)
-    private List<Prediccion> predicciones;
+    @OneToOne(mappedBy = "diagnostico", cascade = CascadeType.ALL)
+    private Prediccion prediccion;
 
-    // Getters y Setters
+    public UUID getDiagnosticoId() {
+        return diagnosticoId;
+    }
+
+    public void setDiagnosticoId(UUID diagnosticoId) {
+        this.diagnosticoId = diagnosticoId;
+    }
+
+    public Caso getCaso() {
+        return caso;
+    }
+
+    public void setCaso(Caso caso) {
+        this.caso = caso;
+    }
+
+    public List<Imagen> getImagenes() {
+        return imagenes;
+    }
+
+    public void setImagenes(List<Imagen> imagenes) {
+        this.imagenes = imagenes;
+    }
+
+    public String getNota() {
+        return nota;
+    }
+
+    public void setNota(String nota) {
+        this.nota = nota;
+    }
+
+    public LocalDateTime getCreado() {
+        return creado;
+    }
+
+    public void setCreado(LocalDateTime creado) {
+        this.creado = creado;
+    }
+
+    public Prediccion getPrediccion() {
+        return prediccion;
+    }
+
+    public void setPrediccion(Prediccion predicciones) {
+        this.prediccion = predicciones;
+    }
 }

@@ -7,14 +7,18 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
+/**
+ * Entidad que representa un Permiso en el sistema.
+ * Un Permiso define una acción específica que puede ser asignada a uno o más Roles.
+ */
 @Entity
 @Table(name = "permiso")
 public class Permiso {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="id_permiso")
-    private UUID id_permiso;
+    @Column(name="permiso_id")
+    private UUID permisoId;
 
     @Column(nullable = false, unique = true)
     private String nombre;

@@ -1,44 +1,27 @@
 package com.example.Backend.DTO;
 
-/* * DTO para la creación de un nuevo usuario.
- * Contiene los campos necesarios para registrar un nuevo usuario en el sistema.
+/** * DTO para representar la información necesaria para crear un nuevo usuario.
+ *
+ * @param dni        Documento Nacional de Identidad del usuario.
+ * @param nombre      Nombre del usuario.
+ * @param apellido1   Primer apellido del usuario.
+ * @param apellido2   Segundo apellido del usuario.
+ * @param password    Contraseña del usuario.
+ * @param email       Correo electrónico del usuario.
+ * @param edad        Edad del usuario.
+ * @param sexo        Sexo del usuario ("M" para masculino, "F" para femenino).
+ * @param rol         Rol del usuario ("ADMIN", "DOCTOR", "PACIENTE").
  */
-public class NewUserRequest {
+public record NewUserRequest(
+         String dni,
+         String nombre,
+         String apellido1,
+         String apellido2,
+         String password,
+         String email,
+         Integer edad,
+         String sexo,
+         String rol
+        ) {
 
-    private String dni;
-    private String nombre;
-    private String apellido1;
-    private String apellido2;
-    private String password;
-    private String email;
-
-    private String rol;
-
-    public String getDni() {
-        return dni;
-    }
-
-    public String getNombre() {
-        return nombre;
-    }
-
-    public String getApellido1() {
-        return apellido1;
-    }
-
-    public String getApellido2() {
-        return apellido2;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public String getRol() {
-        return rol;
-    }
 }
