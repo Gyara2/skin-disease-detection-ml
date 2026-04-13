@@ -1,7 +1,6 @@
 package com.example.Backend.Caso;
 
-import com.example.Backend.DTO.CasoDTO;
-import org.springframework.context.annotation.Bean;
+import com.example.Backend.DTO.CasoResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,11 +20,11 @@ public class CasoService {
             return casoRepository.save(caso);
         }
 
-        public List<CasoDTO> getAllCasosPendientes(String correo){
+        public List<CasoResponse> getAllCasosPendientes(String correo){
             return casoRepository.getAllCasosByEspecialistaEmail(correo);
         }
 
-        public List<CasoDTO> getAllCasosPaciente(String correo){
+        public List<CasoResponse> getAllCasosPaciente(String correo){
             return casoRepository.getAllCasosByPacienteEmail(correo);
         }
 }

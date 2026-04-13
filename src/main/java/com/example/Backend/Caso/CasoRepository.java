@@ -1,6 +1,6 @@
 package com.example.Backend.Caso;
 
-import com.example.Backend.DTO.CasoDTO;
+import com.example.Backend.DTO.CasoResponse;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
@@ -13,7 +13,7 @@ import java.util.UUID;
 public interface CasoRepository extends JpaRepository<Caso, UUID> {
 
     @Query("""
-        SELECT new com.example.Backend.DTO.CasoDTO(
+        SELECT new com.example.Backend.DTO.CasoResponse(
             c.casoId,
             c.estado,
             c.paciente.nombre,
@@ -30,10 +30,10 @@ public interface CasoRepository extends JpaRepository<Caso, UUID> {
         WHERE c.especialista.email = :email 
         AND c.estado = 'PENDIENTE'
     """)
-    List<CasoDTO> getAllCasosByEspecialistaEmail(String email);
+    List<CasoResponse> getAllCasosByEspecialistaEmail(String email);
 
     @Query("""
-        SELECT new com.example.Backend.DTO.CasoDTO(
+        SELECT new com.example.Backend.DTO.CasoResponse(
             c.casoId,
             c.estado,
             c.paciente.nombre,
@@ -49,5 +49,5 @@ public interface CasoRepository extends JpaRepository<Caso, UUID> {
         LEFT JOIN d.prediccion p 
         WHERE pac.email = :email
     """)
-    List<CasoDTO> getAllCasosByPacienteEmail(String email);
+    List<CasoResponse> getAllCasosByPacienteEmail(String email);
 }

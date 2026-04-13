@@ -22,6 +22,4 @@ public record NewUserRequest(
          Integer edad,
          String sexo,
          String rol
-        ) {
-
-}
+        ) {}

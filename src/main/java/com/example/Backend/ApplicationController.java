@@ -1,23 +1,14 @@
 package com.example.Backend;
 
-import com.example.Backend.Caso.Caso;
-import com.example.Backend.Caso.CasoService;
-import com.example.Backend.DTO.CasoDTO;
-import com.example.Backend.DTO.NewUserRequest;
-import com.example.Backend.DTO.NuevoCaso;
-import com.example.Backend.Diagnostico.Diagnostico;
-import com.example.Backend.Diagnostico.DiagnosticoService;
-import com.example.Backend.Diccionario.ClasificacionDermatologica;
-import com.example.Backend.Imagen.Imagen;
-import com.example.Backend.Imagen.ImagenService;
-import com.example.Backend.Prediccion.Prediccion;
-import com.example.Backend.Prediccion.PrediccionService;
-import com.example.Backend.Rol.Rol;
-import com.example.Backend.Rol.RolService;
-import com.example.Backend.Security.JwtUtil;
-import com.example.Backend.Security.SecurityConfig;
-import com.example.Backend.Usuario.Usuario;
-import com.example.Backend.Usuario.UsuarioService;
+import com.example.Backend.Caso.*;
+import com.example.Backend.DTO.*;
+import com.example.Backend.Diagnostico.*;
+import com.example.Backend.Diccionario.*;
+import com.example.Backend.Imagen.*;
+import com.example.Backend.Prediccion.*;
+import com.example.Backend.Rol.*;
+import com.example.Backend.Security.*;
+import com.example.Backend.Usuario.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -151,7 +142,7 @@ public class ApplicationController {
      */
     // TODO: Modular el método dividiendo la lógica en métodos para cada "clase" de operación
     @PostMapping("/NewCaso")
-    public ResponseEntity<String> newCase(@ModelAttribute NuevoCaso nuevoCaso) {
+    public ResponseEntity<String> newCase(@ModelAttribute NewCasoRequest nuevoCaso) {
         Caso caso = new Caso();
 
         // Validamos que el correo del paciente corresponda a un usuario con rol de paciente
@@ -304,7 +295,7 @@ public class ApplicationController {
     // En este caso devolvemos "?" para no forzar una respuesta concreta en caso de recuperar una lista se devuelve la lista,
     // pero si ocurre un error se devuelve un mensaje de error (String)
     public ResponseEntity<?> getCaseFromPaciente(@RequestParam String correo) {
-        List<CasoDTO> casos;
+        List<CasoResponse> casos;
         if(correo == null || correo.isEmpty()){
             return ResponseEntity.status(400).body("El correo proporcionado es inválido: " + correo);
         }
@@ -348,7 +339,7 @@ public class ApplicationController {
             }
         }
 
-        List<CasoDTO> casos;
+        List<CasoResponse> casos;
         // Recuperamos los casos pendientes
         try {
             casos = casoService.getAllCasosPendientes(correo);

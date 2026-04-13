@@ -10,7 +10,7 @@ import java.util.List;
  * @param emailEspecialista Correo electrónico del especialista asociado al caso.
  * @param imagenes        Lista de imágenes (archivos) relacionadas con el caso.
  */
-public record NuevoCaso(
+public record NewCasoRequest(
         String emailPaciente,
         String emailEspecialista,
         List<MultipartFile> imagenes

@@ -1,9 +1,8 @@
 package com.example.Backend.DTO;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
-/** * DTO para representar la información de un caso.
+/** DTO para representar la información de un caso.
  *
  * @param casoId             Identificador único del caso.
  * @param estado              Estado actual del caso ("PENDIENTE", "VERIFICADO").
@@ -14,7 +13,7 @@ import java.util.UUID;
  * @param resultadoModelo     Resultado generado por el modelo de IA para el caso.
  * @param confianzaModelo     Nivel de confianza del resultado generado por el modelo de IA.
  */
-public record CasoDTO(
+public record CasoResponse(
         UUID casoId,
         String estado,
         String nombrePaciente,
