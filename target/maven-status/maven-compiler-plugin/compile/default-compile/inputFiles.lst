@@ -1,0 +1,15 @@
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\ApplicationController.java
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\Caso\Caso.java
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\Diagnostico\Diagnostico.java
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\Diccionario\Variables.java
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\DTO\NewUserRequest.java
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\Imagen\Imagen.java
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\Permiso\Permiso.java
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\Prediccion\Prediccion.java
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\Rol\Rol.java
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\SecurityConfig.java
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\TfgIfpApplication.java
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\Usuario\Usuario.java
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\Usuario\UsuarioRepository.java
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\Usuario\UsuarioService.java
+C:\Users\Diego\IdeaProjects\TFG-IFP\src\main\java\com\example\Backend\Validacion\Validacion.java
