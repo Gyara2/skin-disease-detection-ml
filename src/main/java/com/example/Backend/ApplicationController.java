@@ -16,10 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Controlador para manejar las solicitudes relacionadas con los usuarios.
@@ -41,8 +38,7 @@ public class ApplicationController {
     private ImagenService imagenService;
     @Autowired
     private DiagnosticoService diagnosticoService;
-    @Autowired
-    private PrediccionService prediccionService;
+
 
     private final BCryptPasswordEncoder encoder = SecurityConfig.passwordEncoder();
 
@@ -145,60 +141,66 @@ public class ApplicationController {
     public ResponseEntity<String> newCase(@ModelAttribute NewCasoRequest nuevoCaso) {
         Caso caso = new Caso();
 
-        // Validamos que el correo del paciente corresponda a un usuario con rol de paciente
-        Usuario paciente = usuarioService.findByEmail(nuevoCaso.emailPaciente());
-        if(paciente == null){
-            return ResponseEntity.status(400).body("No se encontró un usuario con el correo proporcionado: " + nuevoCaso.emailPaciente());
-        }else{
-            if(!paciente.getRol().getNombre().equals(Rol.TipoRol.PACIENTE)){
-                return ResponseEntity.status(400).body("El correo proporcionado no corresponde a un paciente: " + nuevoCaso.emailPaciente());
-            }
-        }
-        // Validamos que el correo del especialista corresponda a un usuario con rol de especialista
-        Usuario especialista = usuarioService.findByEmail(nuevoCaso.emailEspecialista());
-        if(especialista == null) {
-            return ResponseEntity.status(400).body("No se encontró un usuario con el correo proporcionado: " + nuevoCaso.emailEspecialista());
-        }else{
-            if(!especialista.getRol().getNombre().equals(Rol.TipoRol.ESPECIALISTA)){
-                return ResponseEntity.status(400).body("El correo proporcionado no corresponde a un especialista: " + nuevoCaso.emailEspecialista());
-            }
-        }
+        // Validamos que los correos existen y corresponden a los roles requeridos (paciente y especialista)
+        Usuario paciente = validarPaciente(nuevoCaso.emailPaciente());
+        Usuario especialista = validarEspecialista(nuevoCaso.emailEspecialista());
+
         // Si ambos correos son válidos, procedemos a crear el caso clínico
         // asignando los valores correspondientes al paciente y al especialista
         caso.setPaciente(paciente);
         caso.setEspecialista(especialista);
+
         // Por defecto el estado del caso es "PENDIENTE" hasta que el especialista
         // revise las imágenes y confirme el diagnóstico
         caso.setEstado("PENDIENTE");
         caso.setCreado(java.time.LocalDateTime.now());
         caso.setActualizado(java.time.LocalDateTime.now());
+
+
         List<Imagen> imagenes = new ArrayList<>();
-
         if(nuevoCaso.imagenes() != null){
-            // Recorremos la lista de imágenes proporcionada en el DTO y creamos objetos Imagen para cada una
-            for(MultipartFile file : nuevoCaso.imagenes()){
-                Imagen imagen = new Imagen();
-                   try{
-                       imagen.setNombreArchivo(file.getOriginalFilename());
-                       imagen.setDatosArchivo(file.getBytes());
-                       imagen.setMimeType(file.getContentType());
-                       imagen.setSize(file.getSize());
-                       imagen.setUploadedAt(java.time.LocalDateTime.now());
-                       imagenes.add(imagen);
-                   }catch (Exception e) {
-                       return ResponseEntity.status(500).body("Error al procesar la imagen: " + file.getOriginalFilename() + ". Detalles: " + e.getMessage());
-                   }
+            try {
+                imagenes = guardarImagenes(nuevoCaso.imagenes());
+            } catch (Exception e) {
+                return ResponseEntity.status(500).body("Error al guardar las imágenes: " + e.getMessage());
             }
-
         }else{
             return ResponseEntity.status(400).body("No se proporcionaron imágenes para el caso clínico.");
         }
+
         Map<String, Double> diagnosticos = new HashMap<>();
         //TODO: Descomentar esta línea para obtener el diagnóstico real de la IA una vez que el servicio externo esté disponible
-        // diagnosticos = getDiagnosticoFromCaso(nuevoCaso.imagenes());
+        diagnosticos = getDiagnosticoFromCaso(imagenes);
 
         // Simulamos la respuesta de la IA para pruebas, ya que el servicio externo no está disponible en este entorno
-        diagnosticos = obtenerPrediccionSimulada();
+        //diagnosticos = obtenerPrediccionSimulada();
+
+        try{
+            Diagnostico diagnostico = guardarDiagnostico(diagnosticos, caso, imagenes);
+            if(diagnostico == null){
+                return ResponseEntity.status(500).body("Error al guardar el diagnóstico para las imágenes proporcionadas.");
+            }
+            for(Imagen img : imagenes){
+                img.setDiagnostico(diagnostico);
+            }
+            casoService.saveCaso(caso);
+            diagnosticoService.saveDiagnostico(diagnostico);
+        }catch (Exception e){
+            return ResponseEntity.status(500).body("Error al guardar el diagnóstico: " + e.getMessage());
+        }
+        return ResponseEntity.ok("Caso clínico creado correctamente con el diagnóstico obtenido.");
+    }
+
+    /** Método para guardar el diagnóstico obtenido de la IA en la base de datos, asociándolo al caso clínico y a las imágenes correspondientes.
+     *
+     * @param diagnosticos Mapa con las predicciones de diagnóstico para cada categoría de lesión cutánea, obtenido de la IA.
+     * @param caso El caso clínico al cual se asociará el diagnóstico.
+     * @param imagenes Lista de imágenes asociadas al caso clínico y al diagnóstico.
+     * @return El objeto Diagnostico guardado en la base de datos, o una excepción en caso de error.
+     * @throws Exception Si ocurre un error al guardar el diagnóstico.
+     */
+    public Diagnostico guardarDiagnostico(Map<String, Double> diagnosticos, Caso caso, List<Imagen> imagenes) throws Exception {
+
         Diagnostico diagnostico = new Diagnostico();
         if(diagnosticos != null){
             diagnostico.setCaso(caso);
@@ -215,21 +217,29 @@ public class ApplicationController {
 
             diagnostico.setPrediccion(prediccion);
         }else{
-            return ResponseEntity.status(500).body("Error al obtener el diagnóstico para las imágenes proporcionadas.");
+            ResponseEntity.status(500).body("Error al obtener el diagnóstico para las imágenes proporcionadas.");
         }
-        try{
-            for(Imagen img : imagenes){
-                img.setDiagnostico(diagnostico);
-            }
-
-            casoService.saveCaso(caso);
-            diagnosticoService.saveDiagnostico(diagnostico);
-        }catch (Exception e){
-            return ResponseEntity.status(500).body("Error al guardar el diagnóstico: " + e.getMessage());
-        }
-        return ResponseEntity.ok("Caso clínico creado correctamente con el diagnóstico obtenido.");
+        return diagnostico;
     }
 
+    /** Método para guardar las imágenes proporcionadas en el caso clínico.
+     *
+     * @param archivos Lista de archivos de imagen a guardar.
+     * @return Lista de objetos Imagen guardados en la base de datos, o una excepción en caso de error.
+     * @throws Exception Si ocurre un error al guardar las imágenes.
+     */
+    public List<Imagen> guardarImagenes(List<MultipartFile> archivos) throws Exception {
+        List<Imagen> imagenes = new ArrayList<>();
+        for (MultipartFile file : archivos) {
+            Imagen imagen = new Imagen();
+            imagen.setNombreArchivo(file.getOriginalFilename());
+            imagen.setDatosArchivo(file.getBytes());
+            imagen.setUploadedAt(java.time.LocalDateTime.now());
+            Imagen imagenGuardada = imagenService.saveImagen(imagen);
+            imagenes.add(imagenGuardada);
+        }
+        return imagenes;
+    }
 
     /**
      * Simula la respuesta de la IA mapeando los códigos técnicos
@@ -256,33 +266,38 @@ public class ApplicationController {
      * @param imagenes Lista de archivos de imagen asociados al caso clínico.
      * @return Mapa con las predicciones de diagnóstico para cada categoría de lesión cutánea, o null en caso de error.
      */
-    public Map<String, Double> getDiagnosticoFromCaso(List<MultipartFile> imagenes){
-        try{
-            // Creamos un cliente web para comunicarnos con el servicio externo de diagnóstico
-            WebClient webClient = WebClient.create("http://localhost:8000");
-            // Enviamos una solicitud POST al endpoint del servicio externo,
-            // pasando las imágenes como parte del cuerpo de la solicitud
-            ClasificacionDermatologica respuesta = webClient.post()
-                    .uri("/predict")
-                    .bodyValue(new RequestData(imagenes))
-                    .retrieve()
-                    .bodyToMono(ClasificacionDermatologica.class)
-                    .block();
+    public Map<String, Double> getDiagnosticoFromCaso(List<Imagen> imagenes){
+        for(Imagen img : imagenes){
+            try{
+                // Convertimos la imagen a base 64
+                String imagenBase64 = Base64.getEncoder().encodeToString(img.getDatosArchivo());
 
-            return Map.of(
-                    "Melanoma", respuesta.mel(),
-                    "Nevus", respuesta.nv(),
-                    "QueratosisActinica", respuesta.akiec(),
-                    "QueratosisSeborreica", respuesta.bkl(),
-                    "CarcinomaBasocelular", respuesta.bcc(),
-                    "CarcinomaEspinocelular", respuesta.vasc(),
-                    "Dermatofibroma", respuesta.df(),
-                    "VerrugaVulgar", respuesta.nv()
-            );
-        }catch(Exception e){
-            System.out.println("Error al obtener el diagnóstico: " + e.getMessage());
-            return null;
+                // Creamos un cliente web para comunicarnos con el servicio externo de diagnóstico
+                WebClient webClient = WebClient.create("http://localhost:5000/api/v1/predict");
+                // Enviamos una solicitud POST al endpoint del servicio externo,
+                // pasando las imágenes como parte del cuerpo de la solicitud
+                ClasificacionDermatologica respuesta = webClient.post()
+                        .uri("/predict")
+                        .bodyValue(new RequestData(imagenBase64, img.getImagenId()))
+                        .retrieve()
+                        .bodyToMono(ClasificacionDermatologica.class)
+                        .block();
+
+                return Map.of(
+                        "Melanoma", respuesta.mel(),
+                        "Nevus", respuesta.nv(),
+                        "QueratosisActinica", respuesta.akiec(),
+                        "QueratosisSeborreica", respuesta.bkl(),
+                        "CarcinomaBasocelular", respuesta.bcc(),
+                        "CarcinomaEspinocelular", respuesta.vasc(),
+                        "Dermatofibroma", respuesta.df()
+                );
+            }catch(Exception e){
+                System.out.println("Error al obtener el diagnóstico: " + e.getMessage());
+                return null;
+            }
         }
+        return null;
     }
 
     /** Endpoint para obtener todos los casos clínicos asociados a un paciente específico, identificado por su correo electrónico.
@@ -347,5 +362,41 @@ public class ApplicationController {
             return ResponseEntity.status(500).body("Error al obtener los casos pendientes para el correo: " + correo + ". Detalles: " + e.getMessage());
         }
         return ResponseEntity.ok(casos);
+    }
+
+    /** Método para validar que el correo proporcionado corresponda a un usuario con rol de paciente.
+     *
+     * @param email El correo electrónico del paciente a validar.
+     * @return El objeto Usuario correspondiente al paciente si la validación es exitosa, o null en caso de error.
+     */
+    public Usuario validarPaciente(String email){
+        // Validamos que el correo del paciente corresponda a un usuario con rol de paciente
+        Usuario paciente = usuarioService.findByEmail(email);
+        if(paciente == null){
+            ResponseEntity.status(400).body("No se encontró un usuario con el correo proporcionado: " + email);
+        }else{
+            if(!paciente.getRol().getNombre().equals(Rol.TipoRol.PACIENTE)){
+                ResponseEntity.status(400).body("El correo proporcionado no corresponde a un paciente: " + email);
+            }
+        }
+        return paciente;
+    }
+
+    /** Método para validar que el correo proporcionado corresponda a un usuario con rol de especialista.
+     *
+     * @param email El correo electrónico del especialista a validar.
+     * @return El objeto Usuario correspondiente al especialista si la validación es exitosa, o null en caso de error.
+     */
+    public Usuario validarEspecialista(String email){
+        // Validamos que el correo del especialista corresponda a un usuario con rol de especialista
+        Usuario especialista = usuarioService.findByEmail(email);
+        if(especialista == null){
+            ResponseEntity.status(400).body("No se encontró un usuario con el correo proporcionado: " + email);
+        }else{
+            if(!especialista.getRol().getNombre().equals(Rol.TipoRol.ESPECIALISTA)){
+                ResponseEntity.status(400).body("El correo proporcionado no corresponde a un especialista: " + email);
+            }
+        }
+        return especialista;
     }
 }

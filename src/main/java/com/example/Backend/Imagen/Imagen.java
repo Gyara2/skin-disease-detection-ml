@@ -19,18 +19,10 @@ public class Imagen {
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name="imagen_id")
     private UUID imagenId;
-
     private String nombreArchivo;
-
     @Lob // Esta es la clave para indicarle a JPA que es un objeto grande (BLOB)
     @Column(name = "datos_archivo", columnDefinition = "LONGBLOB") // Forzamos el tipo exacto de MySQL
     private byte[] datosArchivo;
-    @Column(name = "storage_key")
-    private String storageKey;
-
-    private String hash;
-    private String mimeType;
-    private Long size;
 
     @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;
@@ -39,37 +31,6 @@ public class Imagen {
     @JoinColumn(name = "diagnostico_id")
     private Diagnostico diagnostico;
 
-    public String getStorageKey() {
-        return storageKey;
-    }
-
-    public void setStorageKey(String storageKey) {
-        this.storageKey = storageKey;
-    }
-
-    public String getHash() {
-        return hash;
-    }
-
-    public void setHash(String hash) {
-        this.hash = hash;
-    }
-
-    public String getMimeType() {
-        return mimeType;
-    }
-
-    public void setMimeType(String mimeType) {
-        this.mimeType = mimeType;
-    }
-
-    public Long getSize() {
-        return size;
-    }
-
-    public void setSize(Long size) {
-        this.size = size;
-    }
 
     public LocalDateTime getUploadedAt() {
         return uploadedAt;

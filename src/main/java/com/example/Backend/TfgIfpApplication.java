@@ -6,7 +6,14 @@ import com.example.Backend.Rol.RolRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.event.EventListener;
+
+import java.awt.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 @SpringBootApplication
 public class TfgIfpApplication {
@@ -14,6 +21,19 @@ public class TfgIfpApplication {
     public static void main(String[] args) {
 
         SpringApplication.run(TfgIfpApplication.class, args);
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void abrirNavegador() {
+        String url = "http://localhost:8080";
+        if (Desktop.isDesktopSupported()) {
+            Desktop desktop = Desktop.getDesktop();
+            try {
+                desktop.browse(new URI(url));
+            } catch (IOException | URISyntaxException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     /**

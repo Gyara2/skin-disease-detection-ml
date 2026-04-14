@@ -121,8 +121,6 @@
             <version>7.2.4.Final</version>
         </dependency>
 
-        // JWT dependencies
-        // Para manejar la autenticación y autorización basada en JSON Web Tokens (JWT)
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
@@ -139,6 +137,10 @@
             <artifactId>jjwt-jackson</artifactId>
             <version>0.11.5</version>
             <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
         </dependency>
     </dependencies>
     <build>
