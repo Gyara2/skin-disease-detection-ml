@@ -1,12 +1,12 @@
 import sys
 from pathlib import Path
 
-# Ensure the parent apps/ directory is on sys.path when running this file directly.
-APPS_DIR = Path(__file__).resolve().parent.parent
-if str(APPS_DIR) not in sys.path:
-    sys.path.insert(0, str(APPS_DIR))
+# Ensure the current app directory is on sys.path when running this file directly.
+APP_DIR = Path(__file__).resolve().parent
+if str(APP_DIR) not in sys.path:
+    sys.path.insert(0, str(APP_DIR))
 
-from clasificador.api import create_app
+from api.app import create_app
 
 app = create_app()
 
