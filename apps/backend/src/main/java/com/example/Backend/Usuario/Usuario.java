@@ -16,15 +16,14 @@ import java.util.UUID;
 public class Usuario {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="usuarioId")
-    private UUID usuarioID;
+    private Long usuarioID;
     @Column(unique = true, nullable = false) // Esto asegura que el DNI sea único y no nulo en la base de datos
     private String dni;
     private String nombre;
     private String apellido1;
     private String apellido2;
-
     private Integer edad;
 
     @Column(unique = true, nullable = false) // Esto asegura que el email sea único y no nulo en la base de datos
@@ -58,11 +57,11 @@ public class Usuario {
 
     // Lista de Getters y Setters
 
-    public UUID getId() {
+    public Long getId() {
         return usuarioID;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.usuarioID = id;
     }
 

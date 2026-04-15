@@ -16,9 +16,9 @@ import java.util.UUID;
 public class Caso {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="caso_id")
-    private UUID casoId;
+    private Long casoId;
 
     private String estado;
 
@@ -36,11 +36,11 @@ public class Caso {
     private LocalDateTime creado;
     private LocalDateTime actualizado;
 
-    public UUID getIdCaso() {
+    public Long getIdCaso() {
         return casoId;
     }
 
-    public void setIdCaso(UUID idCaso) {
+    public void setIdCaso(Long idCaso) {
         this.casoId = idCaso;
     }
 
@@ -92,5 +92,16 @@ public class Caso {
         this.actualizado = actualizado;
     }
 
-
+    @Override
+    public String toString() {
+        return "Caso{" +
+                "casoId=" + casoId +
+                ", estado='" + estado + '\'' +
+                ", paciente=" + paciente +
+                ", especialista=" + especialista +
+                ", imagenes=" + imagenes +
+                ", creado=" + creado +
+                ", actualizado=" + actualizado +
+                '}';
+    }
 }

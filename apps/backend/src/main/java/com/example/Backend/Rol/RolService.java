@@ -2,6 +2,8 @@ package com.example.Backend.Rol;
 
 import org.springframework.stereotype.Service;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class RolService {
@@ -17,7 +19,13 @@ public class RolService {
         return rolRepository.findByNombre(Rol.TipoRol.valueOf(nombre));
     }
 
-    public List<Rol> getAllRoles() {
-        return rolRepository.findAll();
+    public Map<String, Long> getAllRoles() {
+        List<Rol> roles = rolRepository.findAll();
+        Map<String, Long> rolesMap = roles.stream()
+                .collect(Collectors.toMap(
+                        rol -> rol.getNombre().name(), // Convertir el enum a String
+                        Rol::getId
+                ));
+        return rolesMap;
     }
 }

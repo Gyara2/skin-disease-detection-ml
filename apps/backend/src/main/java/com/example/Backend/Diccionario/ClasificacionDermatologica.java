@@ -6,7 +6,7 @@ import java.util.UUID;
  * Contiene el ID de la imagen y las probabilidades asociadas a cada categoría dermatológica.
  */
 public record ClasificacionDermatologica(
-        UUID id_imagen,
+        Long id_imagen,
         Double akiec, // Queratosis actínica
         Double bcc, // Carcinoma de células basales
         Double bkl, // Lesiones benignas de tipo queratosis

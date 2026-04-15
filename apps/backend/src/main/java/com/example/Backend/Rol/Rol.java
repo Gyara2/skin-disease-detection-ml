@@ -15,9 +15,9 @@ import java.util.UUID;
 public class Rol {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="rolId")
-    private UUID rolId;
+    private Long rolId;
 
     @Enumerated(EnumType.STRING) // Esta etiqueta permite guardar el valor del enum como texto,
     // por defecto MySQL da valores numericos a los enums
@@ -39,15 +39,15 @@ public class Rol {
     private Set<Permiso> permisos = new HashSet<>();
 
 
-    @OneToMany(mappedBy = "rol")
+    @OneToMany(mappedBy = "rol", fetch = FetchType.LAZY)
     private List<Usuario> usuarios;
 
 
-    public UUID getId() {
+    public Long getId() {
         return rolId;
     }
 
-    public void setId(UUID id) {
+    public void setId(Long id) {
         this.rolId = id;
     }
 

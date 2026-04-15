@@ -16,9 +16,9 @@ import java.util.UUID;
 public class Permiso {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="permiso_id")
-    private UUID permisoId;
+    private Long permisoId;
 
     @Column(nullable = false, unique = true)
     private String nombre;

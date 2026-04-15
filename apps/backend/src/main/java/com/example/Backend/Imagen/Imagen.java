@@ -6,6 +6,7 @@ import com.example.Backend.Prediccion.Prediccion;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.UUID;
 
 /**
@@ -15,9 +16,9 @@ import java.util.UUID;
 @Table(name = "imagen")
 public class Imagen {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="imagen_id")
-    private UUID imagenId;
+    private Long imagenId;
     private String nombreArchivo;
     @Lob // Esta es la clave para indicarle a JPA que es un objeto grande (BLOB)
     @Column(name = "datos_archivo", columnDefinition = "LONGBLOB") // Forzamos el tipo exacto de MySQL
@@ -46,11 +47,11 @@ public class Imagen {
 
     public void setCaso(Caso caso) { this.caso = caso; }
 
-    public UUID getImagenId() {
+    public Long getImagenId() {
         return imagenId;
     }
 
-    public void setImagenId(UUID imagenId) {
+    public void setImagenId(Long imagenId) {
         this.imagenId = imagenId;
     }
 
@@ -70,4 +71,15 @@ public class Imagen {
         this.datosArchivo = datosArchivo;
     }
 
+    @Override
+    public String toString() {
+        return "Imagen{" +
+                "imagenId=" + imagenId +
+                ", nombreArchivo='" + nombreArchivo + '\'' +
+                ", datosArchivo=" + Arrays.toString(datosArchivo) +
+                ", uploadedAt=" + uploadedAt +
+                ", caso=" + caso.getIdCaso() +
+                ", prediccion=" + prediccion +
+                '}';
+    }
 }

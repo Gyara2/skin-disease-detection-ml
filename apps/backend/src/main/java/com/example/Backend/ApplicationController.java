@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Controlador para manejar las solicitudes relacionadas con los usuarios.
@@ -36,7 +37,7 @@ public class ApplicationController {
     @Autowired
     private ImagenService imagenService;
     @Autowired
-
+    private PrediccionService prediccionService;
 
     private final BCryptPasswordEncoder encoder = SecurityConfig.passwordEncoder();
 
@@ -137,10 +138,13 @@ public class ApplicationController {
     @PostMapping("/NewCaso")
     public ResponseEntity<String> newCase(@ModelAttribute NewCasoRequest nuevoCaso) {
         Caso caso = new Caso();
+        Map<String, Double> resultadosMasAltos = new HashMap<>();
 
         // Validamos que los correos existen y corresponden a los roles requeridos (paciente y especialista)
         Usuario paciente = validarPaciente(nuevoCaso.emailPaciente());
         Usuario especialista = validarEspecialista(nuevoCaso.emailEspecialista());
+        System.out.println("Paciente encontrado: " + paciente.getEmail());
+        System.out.println("Especialista encontrado: " + especialista.getEmail());
 
         // Si ambos correos son válidos, procedemos a crear el caso clínico
         // asignando los valores correspondientes al paciente y al especialista
@@ -165,23 +169,43 @@ public class ApplicationController {
             return ResponseEntity.status(400).body("No se proporcionaron imágenes para el caso clínico.");
         }
 
+        List<Prediccion> predicciones = new ArrayList<>();
         for(Imagen img : imagenes){
             Prediccion prediccion = new Prediccion();
             Map<String, Double> resultado = getPrediccioneFromImagen(img);
 
+            //A la respuesta solo mandamos los 3 mejores resultados, ordenados de mayor a menor,
+            // y si hay empate se mantiene el orden original
+            resultadosMasAltos = resultado.entrySet()
+                    .stream()
+                    .sorted(Map.Entry.<String, Double>comparingByValue().reversed()) // Ordenamos de mayor a menor
+                    .limit(3) // Seleccionamos solo con los 3 primeros
+                    .collect(Collectors.toMap(
+                            Map.Entry::getKey,
+                            Map.Entry::getValue,
+                            (e1, e2) -> e1,
+                            LinkedHashMap::new // Usamos LinkedHashMap para mantener el orden de inserción
+                    ));
+            if(resultado == null){
+                return ResponseEntity.status(500).body("Error al obtener el diagnóstico para la imagen: " + img.getNombreArchivo());
+            }
+            prediccion.setResultado(resultadosMasAltos);
+            prediccion.setModeloVersion("1.0"); // Version hardcodeada
+            prediccion.setImagen(img);
+            prediccion.setCreado(java.time.LocalDateTime.now());
+                try {
+                    imagenService.saveImagen(img);
+                    casoService.saveCaso(caso);
+                    prediccionService.guardarPrediccion(prediccion);
+                    predicciones.add(prediccion);
 
+                } catch (Exception e) {
+                    return ResponseEntity.status(500).body("Error al guardar la imagen o la predicción: " + e.getMessage());
+                }
         }
+        caso.setImagenes(imagenes);
 
-
-        Map<String, Double> predicciones = new HashMap<>();
-        //TODO: Descomentar esta línea para obtener el diagnóstico real de la IA una vez que el servicio externo esté disponible
-        //predicciones = getPrediccioneFromImagen(imagenes);
-
-        // Simulamos la respuesta de la IA para pruebas, ya que el servicio externo no está disponible en este entorno
-        //diagnosticos = obtenerPrediccionSimulada();
-
-
-        return ResponseEntity.ok("Caso clínico creado correctamente con el diagnóstico obtenido.");
+        return ResponseEntity.ok("Caso clínico creado correctamente con el diagnóstico obtenido." + predicciones);
     }
 
 
@@ -245,7 +269,7 @@ public class ApplicationController {
                         .retrieve()
                         .bodyToMono(ClasificacionDermatologica.class)
                         .block();
-
+                System.out.println("Respuesta recibida del servicio externo: " + respuesta);
                 return Map.of(
                         "Melanoma", respuesta.mel(),
                         "Nevus", respuesta.nv(),
@@ -277,14 +301,8 @@ public class ApplicationController {
             return ResponseEntity.status(400).body("El correo proporcionado es inválido: " + correo);
         }
         // Verificamos que el correo exista y que corresponda a un usuario "PACIENTE"
-        Usuario user = usuarioService.findByEmail(correo);
-        if(user == null) {
-            return ResponseEntity.status(404).body("No se encontró un usuario con el correo proporcionado: " + correo);
-        }else{
-            if(!user.getRol().getNombre().equals(Rol.TipoRol.PACIENTE)){
-                return ResponseEntity.status(400).body("El correo proporcionado no corresponde a un paciente: " + correo);
-            }
-        }
+        Usuario user = validarPaciente(correo);
+
         try{
             casos = casoService.getAllCasosPaciente(correo);
         }catch (Exception e){
@@ -304,17 +322,10 @@ public class ApplicationController {
     // ya que en caso de error se devuelve un mensaje de error (String)
     public ResponseEntity<?> getCaseFromEspecialista(@RequestParam String correo) {
         if(correo == null || correo.isEmpty()){
-            return ResponseEntity.status(400).body(null);
+            return ResponseEntity.status(400).body("El correo proporcionado es inválido: " + correo);
         }
         // Verificamos que el correo exista y que corresponda a un usuario "ESPECIALISTA"
-        Usuario user = usuarioService.findByEmail(correo);
-        if(user == null) {
-            return ResponseEntity.status(404).body("No se encontró un usuario con el correo proporcionado: " + correo);
-        }else{
-            if(!user.getRol().getNombre().equals(Rol.TipoRol.ESPECIALISTA)){
-                return ResponseEntity.status(400).body("El correo proporcionado no corresponde a un especialista: " + correo);
-            }
-        }
+        Usuario user = validarEspecialista(correo);
 
         List<CasoResponse> casos;
         // Recuperamos los casos pendientes
@@ -365,7 +376,7 @@ public class ApplicationController {
     @GetMapping("/Roles")
     public ResponseEntity<?> getAllRoles() {
         try {
-            List<Rol> roles = rolService.getAllRoles();
+            Map<String, Long> roles = rolService.getAllRoles();
             if(roles == null || roles.isEmpty()){
                 return ResponseEntity.status(404).body("No se encontraron roles en la base de datos.");
             }
@@ -374,4 +385,18 @@ public class ApplicationController {
             return ResponseEntity.status(500).body("Error al obtener los roles: " + e.getMessage());
         }
     }
+
+    @GetMapping("/ListadoUsuarios")
+    public ResponseEntity<?> getAllUsuarios() {
+        try {
+            List<UsuarioResponse> usuarios = usuarioService.getAllUsuarios();
+            if(usuarios == null || usuarios.isEmpty()){
+                return ResponseEntity.status(404).body("No se encontraron usuarios en la base de datos.");
+            }
+            return ResponseEntity.ok(usuarios);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Error al obtener los usuarios: " + e.getMessage());
+        }
+    }
+
 }

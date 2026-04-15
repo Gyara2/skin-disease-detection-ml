@@ -1,8 +1,12 @@
 package com.example.Backend.DTO;
 
-import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record RequestData(
+        // Con esto nos aseguramos que Spring no transforma los nombres al enviar la peticion
+        @JsonProperty("image_base64")
         String image_base64,
-        UUID id_imagen
+        @JsonProperty("id_imagen")
+        Long id_imagen
 ) {}

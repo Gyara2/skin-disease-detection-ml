@@ -16,9 +16,9 @@ import java.util.Map;
 @Table(name = "prediccion")
 public class Prediccion {
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="prediccion_id")
-    private UUID prediccionId;
+    private Long prediccionId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "imagen_id")
@@ -34,11 +34,11 @@ public class Prediccion {
 
     private LocalDateTime creado;
 
-    public UUID getPrediccionId() {
+    public Long getPrediccionId() {
         return prediccionId;
     }
 
-    public void setPrediccionId(UUID prediccionId) {
+    public void setPrediccionId(Long prediccionId) {
         this.prediccionId = prediccionId;
     }
 
@@ -65,5 +65,16 @@ public class Prediccion {
 
     public void setCreado(LocalDateTime creado) {
         this.creado = creado;
+    }
+
+    @Override
+    public String toString() {
+        return "Prediccion{" +
+                "prediccionId=" + prediccionId +
+                ", imagen=" + imagen.getImagenId() +
+                ", modeloVersion='" + modeloVersion + '\'' +
+                ", resultado=" + resultado +
+                ", creado=" + creado +
+                '}';
     }
 }

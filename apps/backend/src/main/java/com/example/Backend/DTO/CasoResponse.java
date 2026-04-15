@@ -17,7 +17,7 @@ import java.util.Map;
  *                            donde la clave es el nombre de la clase y el valor es la probabilidad asociada a esa clase.
  */
 public record CasoResponse(
-        UUID casoId,
+        Long casoId,
         String estado,
         String nombrePaciente,
         String apellido1Paciente,

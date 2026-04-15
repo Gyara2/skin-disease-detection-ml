@@ -1,52 +1,53 @@
 -- Insertar roles de prueba
-INSERT IGNORE INTO rol (rol_id, nombre) VALUES (1, 'PACIENTE');
-INSERT IGNORE INTO rol (rol_id, nombre) VALUES (2, 'ESPECIALISTA');
-INSERT IGNORE INTO rol (rol_id, nombre) VALUES (3, 'ADMIN');
+INSERT IGNORE INTO rol (rolId, nombre) VALUES (1, 'PACIENTE');
+INSERT IGNORE INTO rol (rolId, nombre) VALUES (2, 'ESPECIALISTA');
+INSERT IGNORE INTO rol (rolId, nombre) VALUES (3, 'ADMIN');
 
 
 
 -- Insertar usuarios de prueba
--- Usamos REPLACE(UUID(), '-', '') para adaptarlo al formato que suele esperar Hibernate
-INSERT IGNORE INTO usuario (usuario_id, dni, nombre, apellido1, apellido2, edad, email, password, rol_id, creado, actualizado)
+INSERT IGNORE INTO usuario (usuarioID, dni, nombre, apellido1, apellido2, edad, email, password, rol_id, creado, actualizado)
 VALUES (
+           -- Tienes que generar un UUID manual para las pruebas
            1,
-           '12345678A',
+           '1234567A',
            'Diego',
            'García',
            'Pérez',
            25,
            'paciente@gmail.com',
            'contraseña',
-           1, -- Rol de paciente
+           1,
            NOW(),
            NOW()
        );
-
-INSERT IGNORE INTO usuario (usuario_id, dni, nombre, apellido1, apellido2, edad, email, password, rol_id, creado, actualizado)
+INSERT IGNORE INTO usuario (usuarioID, dni, nombre, apellido1, apellido2, edad, email, password, rol_id, creado, actualizado)
 VALUES (
+           -- Tienes que generar un UUID manual para las pruebas
            2,
-           '87654321B',
-           'Ana',
-           'López',
-           'Sanz',
-           30,
+           '12345678A',
+           'Pepe',
+           'García',
+           'Pérez',
+           25,
            'especialista@gmail.com',
            'contraseña',
-           2, -- Rol de especialista
+           2,
            NOW(),
            NOW()
        );
-INSERT IGNORE INTO usuario (usuario_id, dni, nombre, apellido1, apellido2, edad, email, password, rol_id, creado, actualizado)
+INSERT IGNORE INTO usuario (usuarioID, dni, nombre, apellido1, apellido2, edad, email, password, rol_id, creado, actualizado)
 VALUES (
-           2,
-           '87651321B',
-           'Pepe',
-           'López',
-           'Sanz',
-           30,
+           -- Tienes que generar un UUID manual para las pruebas
+           3,
+           '1245678A',
+           'Maria',
+           'García',
+           'Pérez',
+           25,
            'admin@gmail.com',
            'contraseña',
-           3, -- Rol de admin
+           3,
            NOW(),
            NOW()
        );

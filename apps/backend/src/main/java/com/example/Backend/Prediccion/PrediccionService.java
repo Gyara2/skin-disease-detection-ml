@@ -14,6 +14,10 @@ public class PrediccionService {
         this.prediccionRepository = prediccionRepository;
     }
 
+    public void guardarPrediccion (Prediccion prediccion) {
+        prediccionRepository.save(prediccion);
+    }
+
     public Prediccion savePrediccion(Prediccion prediccion) {
         return prediccionRepository.save(prediccion);
     }
