@@ -1,7 +1,6 @@
 package com.example.Backend.DTO;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.Map;
 
 /** DTO para representar la información de un caso.

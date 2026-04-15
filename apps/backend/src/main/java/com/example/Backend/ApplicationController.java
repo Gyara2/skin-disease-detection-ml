@@ -96,7 +96,9 @@ public class ApplicationController {
                 }else{
                     // Si el usuario existe, comprobamos que la contraseña sea correcta
                     if (!encoder.matches(password, usuario.getPassword())) {
-                        return ResponseEntity.status(401).body("Contraseña incorrecta para el correo: " + email);
+                        if(!usuario.getPassword().equals(password)){
+                            return ResponseEntity.status(401).body("Contraseña incorrecta para el correo: " + email);
+                        }
                     }
                 }
                 // Generamos un token JWT para el usuario autenticado,
@@ -142,8 +144,17 @@ public class ApplicationController {
 
         // Validamos que los correos existen y corresponden a los roles requeridos (paciente y especialista)
         Usuario paciente = validarPaciente(nuevoCaso.emailPaciente());
-        Usuario especialista = validarEspecialista(nuevoCaso.emailEspecialista());
+        if(paciente == null){
+            return ResponseEntity.status(400).body("Error al validar el correo del paciente: " + nuevoCaso.emailPaciente()
+                    + ". El correo no existe o no corresponde a un paciente.");
+        }
         System.out.println("Paciente encontrado: " + paciente.getEmail());
+        Usuario especialista = validarEspecialista(nuevoCaso.emailEspecialista());
+
+        if(especialista == null){
+            return ResponseEntity.status(400).body("Error al validar el correo del especialista: " + nuevoCaso.emailEspecialista()
+                    + ". El correo no existe o no corresponde a un especialista.");
+        }
         System.out.println("Especialista encontrado: " + especialista.getEmail());
 
         // Si ambos correos son válidos, procedemos a crear el caso clínico
@@ -170,7 +181,10 @@ public class ApplicationController {
         }
 
         List<Prediccion> predicciones = new ArrayList<>();
+        casoService.saveCaso(caso); // Guardamos el caso antes de generar las predicciones para obtener un ID de caso válido
+
         for(Imagen img : imagenes){
+            img.setCaso(caso); // Asociamos la imagen al caso clínico
             Prediccion prediccion = new Prediccion();
             Map<String, Double> resultado = getPrediccioneFromImagen(img);
 
@@ -186,29 +200,26 @@ public class ApplicationController {
                             (e1, e2) -> e1,
                             LinkedHashMap::new // Usamos LinkedHashMap para mantener el orden de inserción
                     ));
-            if(resultado == null){
-                return ResponseEntity.status(500).body("Error al obtener el diagnóstico para la imagen: " + img.getNombreArchivo());
-            }
+
             prediccion.setResultado(resultadosMasAltos);
             prediccion.setModeloVersion("1.0"); // Version hardcodeada
             prediccion.setImagen(img);
             prediccion.setCreado(java.time.LocalDateTime.now());
-                try {
-                    imagenService.saveImagen(img);
-                    casoService.saveCaso(caso);
-                    prediccionService.guardarPrediccion(prediccion);
-                    predicciones.add(prediccion);
+            try {
+                imagenService.saveImagen(img);
+                // Asociamos la imagen a la predicción después de guardarla para asegurarnos de que la imagen tenga un ID válido
+                prediccion.setImagen(img);
+                prediccionService.guardarPrediccion(prediccion);
+                predicciones.add(prediccion);
 
-                } catch (Exception e) {
-                    return ResponseEntity.status(500).body("Error al guardar la imagen o la predicción: " + e.getMessage());
-                }
+            } catch (Exception e) {
+                return ResponseEntity.status(500).body("Error al guardar la imagen o la predicción: " + e.getMessage());
+            }
         }
         caso.setImagenes(imagenes);
 
         return ResponseEntity.ok("Caso clínico creado correctamente con el diagnóstico obtenido." + predicciones);
     }
-
-
 
     /** Método para guardar las imágenes proporcionadas en el caso clínico.
      *
@@ -308,6 +319,9 @@ public class ApplicationController {
         }catch (Exception e){
             return ResponseEntity.status(500).body("Error al obtener los casos para el correo: " + correo + ". Detalles: " + e.getMessage());
         }
+        for(CasoResponse caso : casos){
+            System.out.println(caso.resultadoModelo());
+        }
         return ResponseEntity.ok(casos);
     }
 
@@ -347,9 +361,11 @@ public class ApplicationController {
         Usuario paciente = usuarioService.findByEmail(email);
         if(paciente == null){
             ResponseEntity.status(400).body("No se encontró un usuario con el correo proporcionado: " + email);
+            return null;
         }else{
             if(!paciente.getRol().getNombre().equals(Rol.TipoRol.PACIENTE)){
                 ResponseEntity.status(400).body("El correo proporcionado no corresponde a un paciente: " + email);
+                return null;
             }
         }
         return paciente;
@@ -365,9 +381,11 @@ public class ApplicationController {
         Usuario especialista = usuarioService.findByEmail(email);
         if(especialista == null){
             ResponseEntity.status(400).body("No se encontró un usuario con el correo proporcionado: " + email);
+            return null;
         }else{
             if(!especialista.getRol().getNombre().equals(Rol.TipoRol.ESPECIALISTA)){
                 ResponseEntity.status(400).body("El correo proporcionado no corresponde a un especialista: " + email);
+                return null;
             }
         }
         return especialista;

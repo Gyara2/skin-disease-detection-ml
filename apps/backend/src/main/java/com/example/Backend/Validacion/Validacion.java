@@ -15,8 +15,8 @@ import java.util.UUID;
 public class Validacion {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @Column(name="id_usuario")
-    private UUID id_usuario;
+    @Column(name="validacion_id")
+    private Long validacionId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "prediccion_id")
@@ -25,6 +25,10 @@ public class Validacion {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "especialista_id")
     private Usuario especialista;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "paciente_id")
+    private Usuario paciente;
 
     @Column(name = "resultado_final")
     private String resultadoFinal;

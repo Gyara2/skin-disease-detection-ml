@@ -28,7 +28,7 @@ public class Imagen {
     private LocalDateTime uploadedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "diagnostico_id")
+    @JoinColumn(name = "caso_id")
     private Caso caso;
 
     @OneToOne(mappedBy = "imagen", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
