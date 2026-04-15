@@ -18,9 +18,9 @@ from .config import (
     DEFAULT_MODEL_PATH,
     MODELS_DIR,
 )
-from ..ml.inference import Predictor
-from ..ml.training import TrainingConfig, train_model
-from ..ml.utils import is_allowed_image_filename
+from ml.inference import Predictor
+from ml.training import TrainingConfig, train_model
+from ml.utils import is_allowed_image_filename
 
 api_bp = Blueprint("api", __name__)
 
