@@ -1,15 +1,31 @@
 import { apiGet, apiPatch, apiPost } from '@/shared/lib/api';
+import { toRawBase64 } from '@/shared/lib/image-file';
 import type {
-  ActualizarEstadoCasoInput,
   CasoDTO,
   CasoDetalleDTO,
   CrearCasoInput,
-  CrearDiagnosticoInput,
-  CrearValidacionInput,
 } from '@/shared/types';
 
-export const getCasosFromApi = () => {
-  return apiGet<CasoDTO[]>('/casos', 'No se pudieron cargar los casos');
+interface UpsertCasoPayload {
+  id?: string | null;
+  paciente: string;
+  especialista: string;
+  imagenes: string[];
+}
+
+interface GuardarDiagnosticoPayload {
+  especialistaId: string;
+  diagnostico: string;
+  nota?: string;
+}
+
+export const getCasosFromApi = (actorEmail: string, actorRol: string) => {
+  const params = new URLSearchParams({
+    actorEmail,
+    actorRol,
+  });
+
+  return apiGet<CasoDTO[]>(`/casos?${params.toString()}`, 'No se pudieron cargar los casos');
 };
 
 export const getCasoDetalleFromApi = (id: string) => {
@@ -19,68 +35,59 @@ export const getCasoDetalleFromApi = (id: string) => {
   );
 };
 
-export const crearCasoFromApi = (input: CrearCasoInput) => {
-  return apiPost<
-    CasoDetalleDTO,
-    {
-      paciente_id: string;
-      especialista_id: string;
-      imagen_base64: string;
-    }
-  >(
+export const upsertCasoFromApi = (payload: UpsertCasoPayload) => {
+  return apiPost<CasoDetalleDTO, UpsertCasoPayload>(
     '/casos',
     {
-      paciente_id: input.pacienteId,
-      especialista_id: input.especialistaId,
-      imagen_base64: input.imagenBase64,
+      ...payload,
+      imagenes: payload.imagenes.map((item) => toRawBase64(item.trim())),
     },
-    'No se pudo crear el caso',
+    'No se pudo guardar el caso',
   );
 };
 
-export const actualizarEstadoCasoFromApi = (
-  casoId: string,
-  input: ActualizarEstadoCasoInput,
-) => {
-  return apiPatch<CasoDetalleDTO, { estado: ActualizarEstadoCasoInput['estado'] }>(
-    `/casos/${casoId}/estado`,
-    { estado: input.estado },
-    'No se pudo actualizar el estado del caso',
-  );
+export const crearCasoFromApi = (input: CrearCasoInput) => {
+  return upsertCasoFromApi({
+    id: null,
+    paciente: input.pacienteId,
+    especialista: input.especialistaId,
+    imagenes: [input.imagenBase64],
+  });
 };
 
-export const crearDiagnosticoFromApi = (
+export const agregarImagenCasoFromApi = (
   casoId: string,
-  input: CrearDiagnosticoInput,
+  pacienteId: string,
+  especialistaId: string,
+  imagenBase64: string,
 ) => {
-  return apiPost<CasoDetalleDTO, { imagen_base64: string; nota: string }>(
-    `/casos/${casoId}/diagnosticos`,
-    {
-      imagen_base64: input.imagenBase64,
-      nota: input.nota,
-    },
-    'No se pudo registrar el diagnostico',
-  );
+  return upsertCasoFromApi({
+    id: casoId,
+    paciente: pacienteId,
+    especialista: especialistaId,
+    imagenes: [imagenBase64],
+  });
 };
 
-export const crearValidacionFromApi = (
+export const actualizarEstadoCasoFromApi = async () => {
+  throw new Error('La actualización de estado no está disponible en esta fase.');
+};
+
+export const crearDiagnosticoFromApi = async () => {
+  throw new Error('Los diagnósticos no están disponibles en esta fase.');
+};
+
+export const crearValidacionFromApi = async () => {
+  throw new Error('Las validaciones no están disponibles en esta fase.');
+};
+
+export const guardarDiagnosticoEspecialistaFromApi = (
   casoId: string,
-  input: CrearValidacionInput,
+  payload: GuardarDiagnosticoPayload,
 ) => {
-  return apiPost<
-    CasoDetalleDTO,
-    {
-      prediccion_id: string;
-      resultado_final: CrearValidacionInput['resultadoFinal'];
-      nota?: string;
-    }
-  >(
-    `/casos/${casoId}/validaciones`,
-    {
-      prediccion_id: input.prediccionId,
-      resultado_final: input.resultadoFinal,
-      ...(input.nota?.trim() ? { nota: input.nota.trim() } : {}),
-    },
-    'No se pudo registrar la validacion',
+  return apiPatch<CasoDetalleDTO, GuardarDiagnosticoPayload>(
+    `/casos/${casoId}/diagnostico`,
+    payload,
+    'No se pudo guardar el diagnóstico del especialista',
   );
 };

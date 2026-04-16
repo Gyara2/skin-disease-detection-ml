@@ -22,6 +22,12 @@ export interface CrearDiagnosticoInput {
   nota: string;
 }
 
+export interface GuardarDiagnosticoEspecialistaInput {
+  especialistaId: string;
+  diagnostico: string;
+  nota?: string;
+}
+
 export interface CrearValidacionInput {
   prediccionId: string;
   resultadoFinal: ResultadoClinico;
@@ -41,6 +47,7 @@ export interface Caso {
   especialistaNombre: string;
   estado: EstadoCaso;
   diagnosticosCount: number;
+  imagenesCount: number;
 
   estadoLabel: string;
   estadoColor: string;

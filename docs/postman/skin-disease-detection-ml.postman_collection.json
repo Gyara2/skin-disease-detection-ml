@@ -1,0 +1,577 @@
+{
+  "info": {
+    "_postman_id": "e4d4749d-8d61-4a1d-8a2d-0a9ed7ec49b4",
+    "name": "Skin Disease Detection ML - API",
+    "description": "Coleccion para probar backend Java (/api) y clasificador Flask (/api). Incluye ejemplos pre-rellenados para operaciones de creacion.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "backendBaseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "mlBaseUrl",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "actorEmail",
+      "value": "admin@skindiseaseml.local"
+    },
+    {
+      "key": "actorRol",
+      "value": "ADMIN"
+    },
+    {
+      "key": "casoId",
+      "value": "1"
+    },
+    {
+      "key": "usuarioId",
+      "value": "4"
+    },
+    {
+      "key": "prediccionJobId",
+      "value": ""
+    },
+    {
+      "key": "sampleImageBase64",
+      "value": "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO7+0fQAAAAASUVORK5CYII="
+    },
+    {
+      "key": "especialistaId",
+      "value": "2"
+    },
+    {
+      "key": "diagnosticoFinal",
+      "value": "Queratosis seborreica"
+    },
+    {
+      "key": "diagnosticoNota",
+      "value": "Diagnostico final emitido por especialista tras revisar contexto clinico y prediccion IA."
+    }
+  ],
+  "item": [
+    {
+      "name": "Backend - Usuarios",
+      "item": [
+        {
+          "name": "GET /api/usuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/usuarios",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/usuarios (crear usuario)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dni\": \"20000007K\",\n  \"nombre\": \"Ana\",\n  \"apellido1\": \"Garcia\",\n  \"apellido2\": \"Sanz\",\n  \"email\": \"ana.garcia.nueva@skindiseaseml.local\",\n  \"rol\": \"PACIENTE\"\n}"
+            },
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/usuarios",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/usuarios/{id}/rol",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rol\": \"ESPECIALISTA\"\n}"
+            },
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/usuarios/{{usuarioId}}/rol",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "usuarios",
+                "{{usuarioId}}",
+                "rol"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Backend - Casos",
+      "item": [
+        {
+          "name": "GET /api/casos (listado por actor)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/casos?actorEmail={{actorEmail}}&actorRol={{actorRol}}",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "casos"
+              ],
+              "query": [
+                {
+                  "key": "actorEmail",
+                  "value": "{{actorEmail}}"
+                },
+                {
+                  "key": "actorRol",
+                  "value": "{{actorRol}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/casos/{id} (detalle)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/casos/{{casoId}}",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "casos",
+                "{{casoId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/casos (crear caso nuevo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": null,\n  \"paciente\": \"4\",\n  \"especialista\": \"2\",\n  \"imagenes\": [\n    \"{{sampleImageBase64}}\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/casos",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "casos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/casos (anadir imagen a caso existente)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"{{casoId}}\",\n  \"paciente\": \"4\",\n  \"especialista\": \"2\",\n  \"imagenes\": [\n    \"{{sampleImageBase64}}\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/casos",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "casos"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "PATCH /api/casos/{id}/diagnostico (diagnostico especialista)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"especialistaId\": \"{{especialistaId}}\",\n  \"diagnostico\": \"{{diagnosticoFinal}}\",\n  \"nota\": \"{{diagnosticoNota}}\"\n}"
+            },
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/casos/{{casoId}}/diagnostico",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "casos",
+                "{{casoId}}",
+                "diagnostico"
+              ]
+            },
+            "description": "Guarda el diagnostico final del especialista responsable del caso y deja el caso en estado completado."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Backend - Legacy (compatibilidad)",
+      "item": [
+        {
+          "name": "GET /api/Roles",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/Roles",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "Roles"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/ListadoUsuarios",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/ListadoUsuarios",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "ListadoUsuarios"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/LogIn",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/LogIn?email=admin@skindiseaseml.local&password=password",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "LogIn"
+              ],
+              "query": [
+                {
+                  "key": "email",
+                  "value": "admin@skindiseaseml.local"
+                },
+                {
+                  "key": "password",
+                  "value": "password"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/NewUser",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dni\": \"33333333R\",\n  \"nombre\": \"Usuario\",\n  \"apellido1\": \"Legacy\",\n  \"apellido2\": \"Demo\",\n  \"password\": \"password\",\n  \"email\": \"legacy.demo@skindiseaseml.local\",\n  \"edad\": 31,\n  \"sexo\": \"F\",\n  \"rol\": \"PACIENTE\"\n}"
+            },
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/NewUser",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "NewUser"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/GetCasoFromPaciente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/GetCasoFromPaciente?correo=ana.garcia@skindiseaseml.local",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "GetCasoFromPaciente"
+              ],
+              "query": [
+                {
+                  "key": "correo",
+                  "value": "ana.garcia@skindiseaseml.local"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/GetCasoFromEspecialista",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/GetCasoFromEspecialista?correo=laura.lopez@skindiseaseml.local",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "GetCasoFromEspecialista"
+              ],
+              "query": [
+                {
+                  "key": "correo",
+                  "value": "laura.lopez@skindiseaseml.local"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/NewCaso (form-data)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "emailPaciente",
+                  "value": "ana.garcia@skindiseaseml.local",
+                  "type": "text"
+                },
+                {
+                  "key": "emailEspecialista",
+                  "value": "laura.lopez@skindiseaseml.local",
+                  "type": "text"
+                },
+                {
+                  "key": "imagenes",
+                  "type": "file",
+                  "src": ""
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{backendBaseUrl}}/api/NewCaso",
+              "host": [
+                "{{backendBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "NewCaso"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Clasificador ML",
+      "item": [
+        {
+          "name": "GET /api/health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{mlBaseUrl}}/api/health",
+              "host": [
+                "{{mlBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "health"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/predict",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"image_base64\": \"{{sampleImageBase64}}\",\n  \"id_imagen\": 999\n}"
+            },
+            "url": {
+              "raw": "{{mlBaseUrl}}/api/predict",
+              "host": [
+                "{{mlBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "predict"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/train",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"epochs\": 1,\n  \"batch_size\": 16,\n  \"image_size\": [224, 224],\n  \"model_name\": \"skin_cnn_postman\"\n}"
+            },
+            "url": {
+              "raw": "{{mlBaseUrl}}/api/train",
+              "host": [
+                "{{mlBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "train"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/jobs/{job_id}",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{mlBaseUrl}}/api/jobs/{{prediccionJobId}}",
+              "host": [
+                "{{mlBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "jobs",
+                "{{prediccionJobId}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/predict (debug con salida completa)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"image_base64\": \"{{sampleImageBase64}}\",\n  \"id_imagen\": 123456\n}"
+            },
+            "url": {
+              "raw": "{{mlBaseUrl}}/api/predict",
+              "host": [
+                "{{mlBaseUrl}}"
+              ],
+              "path": [
+                "api",
+                "predict"
+              ]
+            },
+            "description": "Devuelve probabilidades crudas por clase (akiec,bcc,bkl,df,mel,nv,vasc). Sirve para comparar contra lo que persiste backend."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

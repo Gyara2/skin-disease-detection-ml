@@ -4,16 +4,20 @@ import type {
   CasoDetalle,
   CrearCasoInput,
   CrearDiagnosticoInput,
+  GuardarDiagnosticoEspecialistaInput,
   CrearValidacionInput,
 } from '@/shared/types';
 import { ENV } from '@/shared/config/env';
+import { useAuthStore } from '@/features/auth/store/auth.store';
 import { mapCasoDetalle } from '../mappers/caso-detalle.mapper';
 import { mapCasoToModel } from '../mappers/caso.mapper';
 import {
   actualizarEstadoCasoFromApi,
+  agregarImagenCasoFromApi,
   crearCasoFromApi,
   crearDiagnosticoFromApi,
   crearValidacionFromApi,
+  guardarDiagnosticoEspecialistaFromApi,
   getCasoDetalleFromApi,
   getCasosFromApi,
 } from './caso.api';
@@ -27,9 +31,15 @@ import {
 } from './caso.mock';
 
 export const getCasos = async (): Promise<Caso[]> => {
+  const auth = useAuthStore.getState().usuario;
+
+  if (!auth) {
+    return [];
+  }
+
   const data = ENV.USE_MOCK
     ? await getCasosFromMock()
-    : await getCasosFromApi();
+    : await getCasosFromApi(auth.email, auth.rol);
 
   return data.map(mapCasoToModel);
 };
@@ -54,13 +64,26 @@ export const crearCaso = async (input: CrearCasoInput): Promise<CasoDetalle> => 
   return mapCasoDetalle(data);
 };
 
+export const agregarImagenCaso = async (
+  casoId: string,
+  pacienteId: string,
+  especialistaId: string,
+  imagenBase64: string,
+): Promise<CasoDetalle> => {
+  const data = ENV.USE_MOCK
+    ? await crearDiagnosticoFromMock(casoId, { imagenBase64, nota: 'Imagen añadida' })
+    : await agregarImagenCasoFromApi(casoId, pacienteId, especialistaId, imagenBase64);
+
+  return mapCasoDetalle(data);
+};
+
 export const actualizarEstadoCaso = async (
   casoId: string,
   input: ActualizarEstadoCasoInput,
 ): Promise<CasoDetalle> => {
   const data = ENV.USE_MOCK
     ? await actualizarEstadoCasoFromMock(casoId, input)
-    : await actualizarEstadoCasoFromApi(casoId, input);
+    : await actualizarEstadoCasoFromApi();
 
   return mapCasoDetalle(data);
 };
@@ -71,7 +94,7 @@ export const crearDiagnostico = async (
 ): Promise<CasoDetalle> => {
   const data = ENV.USE_MOCK
     ? await crearDiagnosticoFromMock(casoId, input)
-    : await crearDiagnosticoFromApi(casoId, input);
+    : await crearDiagnosticoFromApi();
 
   return mapCasoDetalle(data);
 };
@@ -82,7 +105,20 @@ export const crearValidacion = async (
 ): Promise<CasoDetalle> => {
   const data = ENV.USE_MOCK
     ? await crearValidacionFromMock(casoId, input)
-    : await crearValidacionFromApi(casoId, input);
+    : await crearValidacionFromApi();
+
+  return mapCasoDetalle(data);
+};
+
+export const guardarDiagnosticoEspecialista = async (
+  casoId: string,
+  input: GuardarDiagnosticoEspecialistaInput,
+): Promise<CasoDetalle> => {
+  if (ENV.USE_MOCK) {
+    throw new Error('El diagnóstico del especialista no está disponible en modo mock.');
+  }
+
+  const data = await guardarDiagnosticoEspecialistaFromApi(casoId, input);
 
   return mapCasoDetalle(data);
 };

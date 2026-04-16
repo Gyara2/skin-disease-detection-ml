@@ -49,6 +49,19 @@ Estructura relevante:
 - `apps/clasificador/data/raw/` - datos crudos del dataset
 - `environment/requirements.txt` - dependencias del proyecto
 
+## Seed inicial de usuarios (backend SQL)
+
+Al arrancar el backend con base de datos limpia, se cargan usuarios iniciales en `apps/backend/src/main/resources/data.sql`:
+
+- 1 administrador
+- 2 especialistas
+- 3 pacientes
+
+Credenciales iniciales comunes:
+
+- Password en claro: `password`
+- Guardada como hash BCrypt en base de datos
+
 ## Requisitos
 
 - Python 3.10 o superior

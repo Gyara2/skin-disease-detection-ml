@@ -7,6 +7,6 @@ const parseBooleanEnv = (value: string | undefined, fallback: boolean) => {
 };
 
 export const ENV = {
-  USE_MOCK: parseBooleanEnv(import.meta.env.VITE_USE_MOCK, true),
-  API_URL: import.meta.env.VITE_API_URL ?? 'http://localhost:3000',
+  USE_MOCK: parseBooleanEnv(import.meta.env.VITE_USE_MOCK, false),
+  API_URL: import.meta.env.VITE_API_URL ?? 'http://localhost:8080/api',
 };

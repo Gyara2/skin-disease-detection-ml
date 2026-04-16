@@ -35,3 +35,8 @@ export const fileToImageBase64 = async (file: File): Promise<string> => {
     reader.readAsDataURL(file);
   });
 };
+
+export const toRawBase64 = (value: string): string => {
+  const commaIndex = value.indexOf(',');
+  return commaIndex >= 0 ? value.slice(commaIndex + 1) : value;
+};
