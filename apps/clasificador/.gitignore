@@ -1,0 +1,19 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.venv/
+venv/
+env/
+
+.DS_Store
+
+# Keep trained model artifacts versioned
+!models/*.keras
+!models/*_classes.json
+!models/*_metadata.json
+!models/.gitkeep
+
+# Ignore all dataset/raw material
+data/raw/

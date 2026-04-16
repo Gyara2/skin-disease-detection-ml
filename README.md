@@ -8,25 +8,25 @@ El sistema tiene fines **experimentales y de apoyo**, y **no sustituye en ningú
 
 ## Descripción general
 
-El usuario accederá a un cliente web desde el cual podrá cargar una imagen de una lesión cutánea.  
+El usuario especialista (dermatólogo) accederá a un cliente web desde el cual podrá cargar una imagen de una lesión cutánea de un usuario paciente.  
 Dicha imagen será procesada por un modelo de machine learning que devolverá una estimación probabilística sobre posibles afecciones cutáneas, presentada como información orientativa.
-
-Las imágenes proporcionadas por el usuario se utilizarán exclusivamente para la inferencia del modelo y no se almacenarán de forma persistente.
+Se almacenará el historial de casos de los pacientes, incluídas las imágenes utilizadas para los diagnósticos.
+Existirán usuarios administradores que gestionan al resto de usuarios.
+Existirán usuarios técnicos que pueden ver métricas del rendimiento del sistema.
 
 ## Miembros
 
 - Álvaro Guirado Cárdenas
 - Diego Hernando Torralba
 - Javier García Hernández
-- Raúl Gallardo Risco
 
 ## Organización del repositorio
 
 El repositorio se estructura en distintos bloques funcionales, cada uno orientado a una parte concreta del sistema:
 
-- `ml/` → desarrollo, análisis, entrenamiento y evaluación del modelo de machine learning
-- `dashboard/` → cliente web para la interacción con el usuario
-- `monitoring/` → métricas, seguimiento y observabilidad del sistema
+- `apps/backend/` → API Spring Boot y acceso a datos MySQL
+- `apps/frontend/` → cliente web en Vite/React
+- `apps/clasificador/` → servicio de clasificación y entrenamiento en Python/Flask
 - `docs/` → documentación técnica y de diseño
 
 Esta organización busca facilitar la escalabilidad, el mantenimiento y la separación clara de responsabilidades dentro del proyecto.
@@ -93,17 +93,74 @@ Se han escogido las siguientes tecnologías teniendo en cuenta, en primer lugar,
 
 - Prometheus: recopila y almacena las métricas de la aplicación principal del backend. Similar a Grafana, es un software libre que nos aporta gran valor sin necesidad de incurrir en costes.
 
-- Docker: permitirá utilizar una arquitectura de contenedores comunicados dentro de una red interna. Se expondrán al exterior los clientes para los diferentes usuarios y se mantendrán el resto de componentes aislados del exterior.
+- Docker: permitirá utilizar una arquitectura de contenedores comunicados dentro de una red interna. Se expondrán al exterior los clientes para los diferentes usuarios y se mantendrán el resto de componentes aislados del exterior
 
-## Ejecución del sistema
+## Implementación actual
 
-El sistema estará configurado para funcionar como un stack de docker compose.
+Se ha implementado una API REST con Flask y dos módulos reutilizables:
 
-Los pasos para levantarlo son:
+- Entrenamiento de modelo con TensorFlow/Keras a partir de imágenes etiquetadas por carpetas.
+- Inferencia de clasificación sobre imagen subida por el cliente.
 
-1. Tener docker instalado en el SO del host
-2. Disponer de acceso a internet o de las imágenes necesarias ya descargadas en el host
-3. Posicionarse en la ubicación del archivo sdmd.yaml
-4. Ejecutar el comando que levanta el stack: ```docker compose up -d```
+Se ha implementado un backend con Spring que se comunica con la API de Flask y el frontend de React TS para, realizando las operaciones contra la base de datos relacional en la que se almacenan los datos de los usuarios y sus casos.
 
-El archivo sdmd.yaml contiene todas las configuraciones necesarias para que los distintos contenedores se levanten en el orden adecuado y puedan comunicarse entre sí. 
+Se ha implementado un frontend con React TS que permite loguearse a los distintos tipos de usuario:
+
+- Paciente: puede ver sus casos.
+- Especialista: puede ver los casos de todos los pacientes, crear nuevos casos o modificar los existentes.
+- Administrador: puede registrar nuevos usuarios y modificar los existentes
+
+## Seed inicial de usuarios (backend SQL)
+
+Al arrancar el backend con base de datos limpia, se cargan usuarios iniciales en `apps/backend/src/main/resources/data.sql`:
+
+- 1 administrador
+- 2 especialistas
+- 3 pacientes
+
+## Requisitos y Docker Compose
+
+Dado que el sistema se despliega como un proyecto de Docker Compose, el único requisito a nivel de software es tener instalado y corriendo Docker en el SO, con acceso a internet y configurado para poder descargar las imágenes necesarias.
+
+El proyecto utiliza los siguientes puertos para exponer sus servicios, por lo que deben estar disponibles en el host o se generarán conflictos que impedirán el correcto funcionamiento:
+
+- frontend: 5173
+- db: 3306
+- backend: 8080
+- clasificador: 5000
+
+Si se cumplen las dos condiciones descritas, basta con posicionarse en la raíz del repositorio, abrir una terminal y ejecutar el comando: 
+
+		docker compose up --build -d. 
+		
+En instalaciones de Docker en Windows pueden ocurrir problemas en función de la configuración y las versiones. Algunos problemas habituales son:
+
+- Comando no reconocido: prueba 
+
+		docker-compose up --build -d
+
+- Error con WSL: asegúrate de que Docker esté configurado para usar WSL 2, “Settings” → “General” → “Use the WSL 2 based engine”
+
+- Permisos / rutas: ejecuta la terminal como administrador si hay problemas, usa rutas compatibles (evita cosas raras con espacios o discos montados)
+
+Una vez levantado con éxito el proyecto en Docker, se puede acceder al cliente web en la dirección: http://localhost:5173/login, desde la que se puede simular el login con diferentes usuarios que tienen diferentes perfiles: administrador, especialista (dermatólogo) y paciente.
+
+Para poder subir los modelos ya entrenados al repositorio de GitHub se está utilizando Git Large File Storage (Git LFS). Si al clonarlo ves archivos vacíos o con texto tipo pointer, significa que los archivos reales no se han descargado todavía.
+
+Para resolverlo:
+
+- Instala Git LFS: 
+		
+		git lfs install
+
+- Clona el repositorio (o si ya lo tienes, entra en la carpeta)
+
+- Descarga los archivos grandes: 
+		
+		git lfs pull
+
+Con esto, Git reemplaza los punteros por los archivos reales.
+
+## Nota importante
+
+Este sistema es experimental y orientativo. No sustituye el diagnóstico médico profesional.
