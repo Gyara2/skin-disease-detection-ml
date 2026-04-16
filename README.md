@@ -8,10 +8,11 @@ El sistema tiene fines **experimentales y de apoyo**, y **no sustituye en ningú
 
 ## Descripción general
 
-El usuario accederá a un cliente web desde el cual podrá cargar una imagen de una lesión cutánea.  
+El usuario especialista (dermatólogo) accederá a un cliente web desde el cual podrá cargar una imagen de una lesión cutánea de un usuario paciente.  
 Dicha imagen será procesada por un modelo de machine learning que devolverá una estimación probabilística sobre posibles afecciones cutáneas, presentada como información orientativa.
-
-Las imágenes proporcionadas por el usuario se utilizarán exclusivamente para la inferencia del modelo y no se almacenarán de forma persistente.
+Se almacenará el historial de casos de los pacientes, incluídas las imágenes utilizadas para los diagnósticos.
+Existirán usuarios administradores que gestionan al resto de usuarios.
+Existirán usuarios técnicos que pueden ver métricas del rendimiento del sistema.
 
 ## Miembros
 
@@ -30,6 +31,70 @@ El repositorio se estructura en distintos bloques funcionales, cada uno orientad
 
 Esta organización busca facilitar la escalabilidad, el mantenimiento y la separación clara de responsabilidades dentro del proyecto.
 
+## Arquitectura
+
+El sistema consta de varias aplicaciones, cada una de ellas en su propio contenedor de Docker, comunicándose entre sí dentro de la red interna que Docker establece y exponiendo al exterior los clientes que serán el punto de acceso de los usuarios: uno para médicos y pacientes y otro para que los técnicos puedan ver el rendimiento del sistema. De esta forma se consigue una mayor seguridad, ya que los usuarios no tienen forma de interaccionar directamente con la base de datos ni con los servicios. 
+
+- GUI médicos/pacientes: SPA desarrollada en React que permite a los pacientes consultar su historial de casos y a los médicos consultar el historial de casos de todos los pacientes, así como crear nuevos diagnósticos en base a imágenes de lesiones y registrar nuevos pacientes.
+  
+- Servicio casos pacientes: aplicación de Spring que tiene una API REST para comunicarse con GUI médicos/pacientes así como con Modelo clasificación de lesiones cutáneas. Se comunica con la DB usuarios y casos para almacenar y recuperar información sobre los usuarios y sus casos. Expone métricas para que sean almacenadas por Almacenamiento de métricas.
+
+- Modelo clasificación de lesiones cutáneas: aplicación de Flask que gestiona el modelo de ML que realiza la clasificación de imágenes de lesiones de la piel. Se comunica con Servicio casos pacientes a través de una API REST.
+
+- Almacenamiento de métricas: una instancia de Prometheus que almacena las métricas expuestas desde Servicio casos pacientes para que puedan ser consultadas por Dashboard técnicos.
+
+- Dashboard técnicos: una instancia de Grafana accesible por los técnicos para consultar los dashboards de las métricas del sistema. Su fuente de datos es la instancia de Prometheus Almacenamiento de métricas.
+
+## Tecnologías
+
+Se han escogido las siguientes tecnologías teniendo en cuenta, en primer lugar, su aptitud para conseguir los objetivos del sistema y en segundo lugar la familiaridad de los componentes del equipo con ellas. La cantidad de tiempo limitada para el desarrollo del sistema hace que sea arriesgado optar por alternativas desconocidas para ver si presentan una mejora significativa en los resultados.
+
+### Lenguajes 
+
+- Python: para desarrollar el servicio que incluye el modelo de IA. Python es el lenguaje más empleado en el desarrollo de librerías dedicadas a la inteligencia artificial y el Big Data. Además de un extenso catálogo de librerías, existe una comunidad muy grande de usuarios que comparten su experiencia, facilitando el aprendizaje de éstas. 
+
+- Java: para desarrollar la aplicación de backend que gestiona el grueso de la lógica de negocio. El framework Spring, desarrollado en este lenguaje, permite desarrollar una aplicación con funcionalidades a medida de forma rápida y segura. 
+
+- HTML + CSS: diseño de las interfaz de pacientes y médicos. Uso imprescindible de estos lenguajes para el diseño web moderno.
+
+- TS: desarrollo del cliente web para pacientes y médicos. La aportación del tipado que TS impone sobre JS ayuda a la hora de desarrollar código libre de bugs y errores. 
+
+### Frameworks
+
+- Spring: aplicación principal del backend encargada del grueso de la lógica de negocio. A partir de la herramienta Spring Boot y sus starters, se puede levantar la base de la aplicación en un instante. Se podría haber utilizado también Python para el backend, empleando frameworks como Django, pero la existencia de Spring Boot facilita en gran medida desarrollar una aplicación típica que sirva de núcleo del sistema. 
+
+- Flask: aplicación ligera encargada de gestionar el modelo de IA y exponerlo a la aplicación de backend principal. Mantener el modelo en esta aplicación desarrollada en Python, usando una API como interfaz con el resto del sistema nos permitirá aprovechar lo mejor de los dos mundos (Python y Java) sin acoplar los desarrollos. Únicamente habrá que definir bien las comunicaciones vía API entre ambas partes.
+
+- React: cliente web para médicos y pacientes. Permite el desarrollo de aplicaciones single page muy robustas y dinámicas. Dado el tipo de interacciones de los usuarios con nuestro sistema, un framework de SPA resultará en mejor rendimiento y experiencia de uso. 
+
+### Librerías principales
+
+- PyTorch/Tensor Flow: desarrollo del modelo de ML.
+
+- Flask-RESTful: API REST del servicio del modelo.
+
+- Spring Security: autenticación y autorización.
+
+- Spring Web: API REST de la aplicación principal de backend
+
+- JUnit + Mockito: test unitario en Spring
+
+- SpringDoc OpenAPI: permite documentar fácilmente la API, generando una página web de Swagger donde poder explorar ésta en detalle. 
+
+- Tailwind: facilita la incorporación de estilos a los componentes propios del framework React. Agilizará el desarrollo.
+
+### Tipo de base de datos
+
+- MySQL: base de datos relacional que nos permitirá guardar la información de los usuarios y sus casos de forma estructurada, tanto para realizar el seguimiento de los casos como para poder recuperar información para medir el rendimiento del modelo. Nos ha parecido el tipo de base de datos adecuado, ya que tienen mucho peso las entidades y, en segundo lugar, las relaciones entre estas.
+
+### Herramientas auxiliares
+
+- Grafana: para desarrollar dashboards en los que visualizar las métricas de la aplicación almacenadas en Prometheus. Es muy buena opción en nuestro caso, ya que existe versión libre que no presenta limitaciones significativas.
+
+- Prometheus: recopila y almacena las métricas de la aplicación principal del backend. Similar a Grafana, es un software libre que nos aporta gran valor sin necesidad de incurrir en costes.
+
+- Docker: permitirá utilizar una arquitectura de contenedores comunicados dentro de una red interna. Se expondrán al exterior los clientes para los diferentes usuarios y se mantendrán el resto de componentes aislados del exterior
+
 ## Implementación actual
 
 Se ha implementado una API REST con Flask y dos módulos reutilizables:
@@ -37,16 +102,13 @@ Se ha implementado una API REST con Flask y dos módulos reutilizables:
 - Entrenamiento de modelo con TensorFlow/Keras a partir de imágenes etiquetadas por carpetas.
 - Inferencia de clasificación sobre imagen subida por el cliente.
 
-Estructura relevante:
+Se ha implementado un backend con Spring que se comunica con la API de Flask y el frontend de React TS para, realizando las operaciones contra la base de datos relacional en la que se almacenan los datos de los usuarios y sus casos.
 
-- `apps/clasificador/api/` - capa REST (`/api/health`, `/api/predict`, `/api/train`, `/api/jobs/<job_id>`)
-- `apps/clasificador/ml/training.py` - lógica de entrenamiento reutilizable
-- `apps/clasificador/ml/inference.py` - lógica de predicción reutilizable
-- `apps/clasificador/training/train_runner.py` - ejecución manual de entrenamiento por CLI
-- `apps/clasificador/main.py` - punto de entrada de la API Flask
-- `apps/clasificador/models/` - modelos entrenados y archivos de configuración
-- `apps/clasificador/data/raw/` - datos crudos del dataset
-- `environment/requirements.txt` - dependencias del proyecto
+Se ha implementado un frontend con React TS que permite loguearse a los distintos tipos de usuario:
+
+- Paciente: puede ver sus casos.
+- Especialista: puede ver los casos de todos los pacientes, crear nuevos casos o modificar los existentes.
+- Administrador: puede registrar nuevos usuarios y modificar los existentes
 
 ## Seed inicial de usuarios (backend SQL)
 
@@ -56,219 +118,48 @@ Al arrancar el backend con base de datos limpia, se cargan usuarios iniciales en
 - 2 especialistas
 - 3 pacientes
 
-Credenciales iniciales comunes:
+## Requisitos y Docker Compose
 
-- Password en claro: `password`
-- Guardada como hash BCrypt en base de datos
+Dado que el sistema se despliega como un proyecto de Docker Compose, el único requisito a nivel de software es tener instalado y corriendo Docker en el SO, con acceso a internet y configurado para poder descargar las imágenes necesarias.
 
-## Requisitos
+El proyecto utiliza los siguientes puertos para exponer sus servicios, por lo que deben estar disponibles en el host o se generarán conflictos que impedirán el correcto funcionamiento:
 
-- Python 3.10 o superior
-- Dataset de imágenes en carpetas por clase, por ejemplo:
+- frontend: 5173
+- db: 3306
+- backend: 8080
+- clasificador: 5000
 
-```text
-data/raw/train/
-	acne/
-		img1.jpg
-		img2.jpg
-	eczema/
-		img3.jpg
-```
+Si se cumplen las dos condiciones descritas, basta con posicionarse en la raíz del repositorio, abrir una terminal y ejecutar el comando: 
 
-Para usar HAM10000 (7 clases), puedes preparar el dataset automáticamente con el script incluido en `apps/clasificador/training/prep_ham10000.py`.
+		docker compose up --build -d. 
+		
+En instalaciones de Docker en Windows pueden ocurrir problemas en función de la configuración y las versiones. Algunos problemas habituales son:
 
-## Instalación
+- Comando no reconocido: prueba 
 
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -r environment/requirements.txt
-```
+		docker-compose up --build -d
 
-## Ejecutar con Docker Compose
+- Error con WSL: asegúrate de que Docker esté configurado para usar WSL 2, “Settings” → “General” → “Use the WSL 2 based engine”
 
-El proyecto incluye un stack Docker Compose para arrancar el frontend, backend, base de datos MySQL y el servicio de clasificación.
+- Permisos / rutas: ejecuta la terminal como administrador si hay problemas, usa rutas compatibles (evita cosas raras con espacios o discos montados)
 
-```bash
-docker compose up --build -d
-```
+Una vez levantado con éxito el proyecto en Docker, se puede acceder al cliente web en la dirección: http://localhost:5173/login, desde la que se puede simular el login con diferentes usuarios que tienen diferentes perfiles: administrador, especialista (dermatólogo) y paciente.
 
-Servicios y puertos expuestos:
+Para poder subir los modelos ya entrenados al repositorio de GitHub se está utilizando Git Large File Storage (Git LFS). Si al clonarlo ves archivos vacíos o con texto tipo pointer, significa que los archivos reales no se han descargado todavía.
 
-- `frontend` → `5173:5173`
-- `backend` → `8080:8080`
-- `db` → `3306:3306`
-- `clasificador` → `5000:5000`
+Para resolverlo:
 
-El backend se construye dentro del contenedor usando Maven, resolviendo todas las dependencias necesarias (incluido el driver de MySQL). El frontend se arranca en modo real con `VITE_USE_MOCK=false`, de modo que consume la API del backend en lugar de datos simulados.
+- Instala Git LFS: 
+		
+		git lfs install
 
-## Ejecutar API Flask
+- Clona el repositorio (o si ya lo tienes, entra en la carpeta)
 
-```bash
-python apps/clasificador/main.py
-```
+- Descarga los archivos grandes: 
+		
+		git lfs pull
 
-API disponible en `http://127.0.0.1:5000`.
-
-## Endpoints
-
-### Health check
-
-```bash
-curl -X GET http://127.0.0.1:5000/api/health
-```
-
-### Predicción de imagen
-
-```bash
-curl -X POST http://127.0.0.1:5000/api/predict \
-	-F "image=@/ruta/a/imagen.jpg"
-```
-
-Respuesta esperada:
-
-```json
-{
-	"predicted_class": "acne",
-	"confidence": 0.91,
-	"top_k": [
-		{"class": "acne", "probability": 0.91},
-		{"class": "eczema", "probability": 0.07},
-		{"class": "psoriasis", "probability": 0.02}
-	]
-}
-```
-
-Opcionalmente puedes indicar rutas explícitas de artefactos:
-
-```bash
-curl -X POST http://127.0.0.1:5000/api/predict \
-	-F "image=@/ruta/a/imagen.jpg" \
-	-F "model_path=/ruta/a/modelo.keras" \
-	-F "class_names_path=/ruta/a/classes.json"
-```
-
-### Lanzar entrenamiento (asíncrono)
-
-```bash
-curl -X POST http://127.0.0.1:5000/api/train \
-	-H "Content-Type: application/json" \
-	-d '{
-		"data_dir": "data/raw/train",
-		"epochs": 10,
-		"batch_size": 32,
-		"image_size": [224, 224],
-		"validation_split": 0.2,
-		"seed": 42,
-		"model_name": "skin_cnn"
-	}'
-```
-
-Para entrenar con splits explícitos (sin `validation_split`):
-
-```bash
-curl -X POST http://127.0.0.1:5000/api/train \
-	-H "Content-Type: application/json" \
-	-d '{
-		"train_dir": "data/raw/ham10000/splits/train",
-		"val_dir": "data/raw/ham10000/splits/val",
-		"test_dir": "data/raw/ham10000/splits/test",
-		"epochs": 10,
-		"batch_size": 32,
-		"image_size": [224, 224],
-		"seed": 42,
-		"model_name": "skin_cnn"
-	}'
-```
-
-Respuesta inmediata (HTTP 202):
-
-```json
-{
-	"job_id": "...",
-	"status": "queued",
-	"status_url": "/api/jobs/<job_id>"
-}
-```
-
-### Consultar estado de entrenamiento
-
-```bash
-curl -X GET http://127.0.0.1:5000/api/jobs/<job_id>
-```
-
-Estados posibles: `queued`, `running`, `success`, `failed`.
-
-## Entrenamiento por script (CLI)
-
-```bash
-python training/train_runner.py \
-	--data-dir data/raw/train \
-	--model-dir data/models \
-	--epochs 10 \
-	--batch-size 32 \
-	--image-size 224 224
-```
-
-### Preparar HAM10000 en formato train/val/test
-
-Estructura esperada de entrada (descarga de HAM10000):
-
-```text
-data/raw/ham10000/source/
-	HAM10000_metadata.csv
-	HAM10000_images_part_1/
-		ISIC_*.jpg
-	HAM10000_images_part_2/
-		ISIC_*.jpg
-```
-
-Preparación reproducible y estratificada por clase:
-
-```bash
-python training/prep_ham10000.py \
-	--metadata-csv data/raw/ham10000/source/HAM10000_metadata.csv \
-	--images-dir data/raw/ham10000/source/HAM10000_images_part_1 data/raw/ham10000/source/HAM10000_images_part_2 \
-	--output-dir data/raw/ham10000/splits \
-	--train-ratio 0.7 \
-	--val-ratio 0.15 \
-	--test-ratio 0.15 \
-	--seed 42
-```
-
-El script genera:
-
-```text
-data/raw/ham10000/splits/
-	train/<clase>/*.jpg
-	val/<clase>/*.jpg
-	test/<clase>/*.jpg
-	split_manifest.csv
-	split_summary.json
-```
-
-### Entrenamiento con splits explícitos (recomendado para HAM10000)
-
-```bash
-python training/train_runner.py \
-	--train-dir data/raw/ham10000/splits/train \
-	--val-dir data/raw/ham10000/splits/val \
-	--test-dir data/raw/ham10000/splits/test \
-	--model-dir data/models \
-	--epochs 10 \
-	--batch-size 32 \
-	--image-size 224 224
-```
-
-Cuando se usan `--train-dir`, `--val-dir` y `--test-dir`, el entrenamiento no aplica `validation_split` y evalúa métricas finales sobre `test`.
-
-## Artefactos generados
-
-Cada entrenamiento guarda en `data/models/`:
-
-- Modelo entrenado: `<model_name>_<timestamp>.keras`
-- Mapa de clases: `<model_name>_<timestamp>_classes.json`
-- Metadatos y métricas: `<model_name>_<timestamp>_metadata.json`
+Con esto, Git reemplaza los punteros por los archivos reales.
 
 ## Nota importante
 
