@@ -120,10 +120,22 @@ public class ApplicationController {
     }
 
     @GetMapping("/casos/{id}")
-    public ResponseEntity<?> getCasoDetalle(@PathVariable Long id) {
+    public ResponseEntity<?> getCasoDetalle(
+            @PathVariable Long id,
+            @RequestParam(required = false) String actorEmail,
+            @RequestParam(required = false) String actorRol
+    ) {
         try {
-            CasoDetalleResponse caso = casoService.getCasoDetalle(id);
+            CasoDetalleResponse caso = (
+                    actorEmail != null && !actorEmail.isBlank() && actorRol != null && !actorRol.isBlank()
+                            ? casoService.getCasoDetalle(id, actorEmail, actorRol)
+                            : casoService.getCasoDetalle(id)
+            );
             return ResponseEntity.ok(caso);
+        } catch (SecurityException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (NoSuchElementException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (Exception e) {

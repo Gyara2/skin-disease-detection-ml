@@ -82,7 +82,44 @@ public class CasoService {
             Caso caso = casoRepository.findByIdWithRelations(casoId)
                     .orElseThrow(() -> new NoSuchElementException("No se encontró el caso con id " + casoId));
 
-            return toCasoDetalle(caso);
+            return toCasoDetalle(caso, true);
+        }
+
+        @Transactional(readOnly = true)
+        public CasoDetalleResponse getCasoDetalle(Long casoId, String actorEmail, String actorRol) {
+            if (actorEmail == null || actorEmail.trim().isEmpty()) {
+                throw new IllegalArgumentException("actorEmail es obligatorio.");
+            }
+            if (actorRol == null || actorRol.trim().isEmpty()) {
+                throw new IllegalArgumentException("actorRol es obligatorio.");
+            }
+
+            Caso caso = casoRepository.findByIdWithRelations(casoId)
+                    .orElseThrow(() -> new NoSuchElementException("No se encontró el caso con id " + casoId));
+
+            Usuario actor = usuarioRepository.findByEmail(actorEmail.trim());
+            if (actor == null || actor.getRol() == null || actor.getRol().getNombre() == null) {
+                throw new NoSuchElementException("No se encontró un usuario válido para actorEmail.");
+            }
+
+            Rol.TipoRol rol = actor.getRol().getNombre();
+            Rol.TipoRol rolSolicitado = Rol.TipoRol.valueOf(actorRol.trim().toUpperCase(Locale.ROOT));
+            if (rol != rolSolicitado) {
+                throw new IllegalArgumentException("actorRol no coincide con el rol real del usuario.");
+            }
+
+            boolean tieneAcceso = switch (rol) {
+                case ADMIN -> true;
+                case PACIENTE -> actorEmail.equalsIgnoreCase(caso.getPaciente().getEmail());
+                case ESPECIALISTA -> actorEmail.equalsIgnoreCase(caso.getEspecialista().getEmail());
+            };
+
+            if (!tieneAcceso) {
+                throw new SecurityException("No tienes permiso para consultar este caso.");
+            }
+
+            boolean incluirPredicciones = rol != Rol.TipoRol.PACIENTE;
+            return toCasoDetalle(caso, incluirPredicciones);
         }
 
         @Transactional
@@ -120,7 +157,7 @@ public class CasoService {
 
             Caso refreshed = casoRepository.findByIdWithRelations(caso.getIdCaso())
                     .orElseThrow(() -> new NoSuchElementException("No se encontró el caso tras guardar."));
-            return toCasoDetalle(refreshed);
+            return toCasoDetalle(refreshed, true);
         }
 
         @Transactional
@@ -160,7 +197,7 @@ public class CasoService {
 
             Caso refreshed = casoRepository.findByIdWithRelations(caso.getIdCaso())
                     .orElseThrow(() -> new NoSuchElementException("No se encontró el caso tras guardar diagnóstico."));
-            return toCasoDetalle(refreshed);
+            return toCasoDetalle(refreshed, true);
         }
 
         private Caso resolveCasoForUpsert(CasoUpsertRequest request) {
@@ -295,7 +332,7 @@ public class CasoService {
             );
         }
 
-        private CasoDetalleResponse toCasoDetalle(Caso caso) {
+        private CasoDetalleResponse toCasoDetalle(Caso caso, boolean incluirPredicciones) {
             List<CasoDetalleImagenResponse> imagenes = new ArrayList<>();
             if (caso.getImagenes() != null) {
                 caso.getImagenes().stream()
@@ -307,7 +344,7 @@ public class CasoService {
                                 imagen.getDatosArchivo() == null ? 0 : imagen.getDatosArchivo().length,
                                 imagen.getUploadedAt(),
                                 buildImageSrc(imagen.getDatosArchivo()),
-                                toPredictionResponse(imagen.getPrediccion())
+                                toPredictionResponse(imagen.getPrediccion(), incluirPredicciones)
                         )));
             }
             String estadoVisual = resolveEstadoVisual(caso.getEstado(), imagenes.size());
@@ -362,7 +399,10 @@ public class CasoService {
             return "data:image/jpeg;base64," + Base64.getEncoder().encodeToString(rawBytes);
         }
 
-        private CasoDetallePrediccionResponse toPredictionResponse(Prediccion prediccion) {
+        private CasoDetallePrediccionResponse toPredictionResponse(Prediccion prediccion, boolean incluirPredicciones) {
+            if (!incluirPredicciones) {
+                return null;
+            }
             if (prediccion == null) {
                 return null;
             }

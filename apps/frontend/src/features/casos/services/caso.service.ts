@@ -45,9 +45,10 @@ export const getCasos = async (): Promise<Caso[]> => {
 };
 
 export const getCasoDetalle = async (id: string): Promise<CasoDetalle> => {
+  const auth = useAuthStore.getState().usuario;
   const data = ENV.USE_MOCK
     ? await getCasoDetalleFromMock(id)
-    : await getCasoDetalleFromApi(id);
+    : await getCasoDetalleFromApi(id, auth?.email, auth?.rol);
 
   if (!data) {
     throw new Error('No se ha encontrado el caso solicitado');

@@ -55,6 +55,7 @@ export const CasoDetallePage = () => {
       verCaso: esAdmin || esEspecialistaResponsable || esPacienteDelCaso,
       gestionarImagenes: esAdmin || esEspecialistaResponsable,
       gestionarDiagnostico: esEspecialistaResponsable,
+      verPrediccionIa: esAdmin || esEspecialistaResponsable,
     };
   }, [usuario, data]);
 
@@ -389,37 +390,39 @@ export const CasoDetallePage = () => {
                           ? imagen.uploadedAt.toLocaleString('es-ES')
                           : 'Sin fecha'}
                       </p>
-                      <div className='mt-3 rounded-xl border border-slate-200 bg-white p-2'>
-                        <p className='text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-700'>
-                          Predicción IA
-                        </p>
-                        {imagen.prediccion &&
-                        Object.keys(imagen.prediccion.resultado).length ? (
-                          <div className='mt-2 space-y-1'>
-                            {Object.entries(imagen.prediccion.resultado)
-                              .sort((a, b) => b[1] - a[1])
-                              .slice(0, 3)
-                              .map(([etiqueta, valor]) => (
-                                <div
-                                  key={etiqueta}
-                                  className='flex items-center justify-between gap-2'
-                                >
-                                  <span className='text-slate-700'>{etiqueta}</span>
-                                  <span className='font-medium text-slate-900'>
-                                    {(valor * 100).toFixed(2)}%
-                                  </span>
-                                </div>
-                              ))}
-                            <p className='pt-1 text-[10px] text-slate-500'>
-                              Modelo: {imagen.prediccion.modeloVersion ?? 'N/D'}
-                            </p>
-                          </div>
-                        ) : (
-                          <p className='mt-2 text-[11px] text-slate-500'>
-                            Predicción pendiente o no disponible.
+                      {permisos.verPrediccionIa ? (
+                        <div className='mt-3 rounded-xl border border-slate-200 bg-white p-2'>
+                          <p className='text-[11px] font-semibold uppercase tracking-[0.18em] text-sky-700'>
+                            Predicción IA
                           </p>
-                        )}
-                      </div>
+                          {imagen.prediccion &&
+                          Object.keys(imagen.prediccion.resultado).length ? (
+                            <div className='mt-2 space-y-1'>
+                              {Object.entries(imagen.prediccion.resultado)
+                                .sort((a, b) => b[1] - a[1])
+                                .slice(0, 3)
+                                .map(([etiqueta, valor]) => (
+                                  <div
+                                    key={etiqueta}
+                                    className='flex items-center justify-between gap-2'
+                                  >
+                                    <span className='text-slate-700'>{etiqueta}</span>
+                                    <span className='font-medium text-slate-900'>
+                                      {(valor * 100).toFixed(2)}%
+                                    </span>
+                                  </div>
+                                ))}
+                              <p className='pt-1 text-[10px] text-slate-500'>
+                                Modelo: {imagen.prediccion.modeloVersion ?? 'N/D'}
+                              </p>
+                            </div>
+                          ) : (
+                            <p className='mt-2 text-[11px] text-slate-500'>
+                              Predicción pendiente o no disponible.
+                            </p>
+                          )}
+                        </div>
+                      ) : null}
                     </div>
                   </div>
                 ))}

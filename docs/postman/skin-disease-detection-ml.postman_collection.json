@@ -168,7 +168,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{backendBaseUrl}}/api/casos/{{casoId}}",
+              "raw": "{{backendBaseUrl}}/api/casos/{{casoId}}?actorEmail={{actorEmail}}&actorRol={{actorRol}}",
               "host": [
                 "{{backendBaseUrl}}"
               ],

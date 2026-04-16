@@ -28,9 +28,20 @@ export const getCasosFromApi = (actorEmail: string, actorRol: string) => {
   return apiGet<CasoDTO[]>(`/casos?${params.toString()}`, 'No se pudieron cargar los casos');
 };
 
-export const getCasoDetalleFromApi = (id: string) => {
+export const getCasoDetalleFromApi = (
+  id: string,
+  actorEmail?: string,
+  actorRol?: string,
+) => {
+  const params = new URLSearchParams();
+  if (actorEmail && actorRol) {
+    params.set('actorEmail', actorEmail);
+    params.set('actorRol', actorRol);
+  }
+  const query = params.toString();
+
   return apiGet<CasoDetalleDTO>(
-    `/casos/${id}`,
+    `/casos/${id}${query ? `?${query}` : ''}`,
     'No se pudo cargar el detalle del caso',
   );
 };
