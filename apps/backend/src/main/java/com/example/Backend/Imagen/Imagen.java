@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
-import java.util.UUID;
 
 /**
  * Entidad que representa una imagen asociada a un diagnóstico.
@@ -71,6 +70,14 @@ public class Imagen {
         this.datosArchivo = datosArchivo;
     }
 
+    public Prediccion getPrediccion() {
+        return prediccion;
+    }
+
+    public void setPrediccion(Prediccion prediccion) {
+        this.prediccion = prediccion;
+    }
+
     @Override
     public String toString() {
         return "Imagen{" +
@@ -78,7 +85,7 @@ public class Imagen {
                 ", nombreArchivo='" + nombreArchivo + '\'' +
                 ", datosArchivo=" + Arrays.toString(datosArchivo) +
                 ", uploadedAt=" + uploadedAt +
-                ", caso=" + caso.getIdCaso() +
+                ", caso=" + (caso != null ? caso.getIdCaso() : null) +
                 ", prediccion=" + prediccion +
                 '}';
     }

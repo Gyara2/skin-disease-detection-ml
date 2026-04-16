@@ -151,6 +151,13 @@
         </dependency>
     </dependencies>
     <build>
+        <sourceDirectory>apps/backend/src/main/java</sourceDirectory>
+        <testSourceDirectory>apps/backend/src/test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>apps/backend/src/main/resources</directory>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -167,6 +174,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.example.Backend.TfgIfpApplication</mainClass>
+                </configuration>
             </plugin>
         </plugins>
     </build>
