@@ -54,3 +54,23 @@ export const CasoHeader = ({
     </nav>
   </header>
 );
+
+const TabButton = ({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) => (
+  <button
+    type='button'
+    onClick={onClick}
+    className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+      active ? 'bg-white text-sky-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
+    }`}
+  >
+    {label}
+  </button>
+);

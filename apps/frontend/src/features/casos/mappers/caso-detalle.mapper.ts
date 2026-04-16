@@ -1,8 +1,10 @@
 import type {
   CasoDetalle,
+  DiagnosticoEspecialistaDTO,
   CasoDetalleDTO,
   DiagnosticoDTO,
   ImagenDTO,
+  ImagenPrediccionDTO,
   PrediccionDTO,
   UsuarioDTO,
   ValidacionDTO,
@@ -14,6 +16,19 @@ const mapUsuario = (user: UsuarioDTO) => ({
   nombreCompleto: `${user.nombre} ${user.apellido1} ${user.apellido2}`.trim(),
 });
 
+const mapImagenPrediccion = (prediccion?: ImagenPrediccionDTO | null) => {
+  if (!prediccion) {
+    return null;
+  }
+
+  return {
+    id: prediccion.id ?? '',
+    modeloVersion: prediccion.modelo_version ?? null,
+    resultado: prediccion.resultado ?? {},
+    creado: prediccion.creado ? new Date(prediccion.creado) : null,
+  };
+};
+
 const mapImagen = (imagen?: ImagenDTO | null, imagenId?: string) => {
   if (!imagen && !imagenId) {
     return null;
@@ -21,11 +36,30 @@ const mapImagen = (imagen?: ImagenDTO | null, imagenId?: string) => {
 
   return {
     id: imagen?.id ?? imagenId ?? '',
+    nombreArchivo: imagen?.nombre_archivo ?? null,
     storageKey: imagen?.storage_key ?? null,
     mimeType: imagen?.mime_type ?? null,
     size: imagen?.size ?? null,
     uploadedAt: imagen?.uploaded_at ? new Date(imagen.uploaded_at) : null,
     src: imagen?.src ?? null,
+    prediccion: mapImagenPrediccion(imagen?.prediccion),
+  };
+};
+
+const mapDiagnosticoEspecialista = (
+  diagnostico?: DiagnosticoEspecialistaDTO | null,
+) => {
+  if (!diagnostico?.diagnostico?.trim()) {
+    return null;
+  }
+
+  return {
+    diagnostico: diagnostico.diagnostico.trim(),
+    nota: diagnostico.nota ?? null,
+    creado: diagnostico.creado ? new Date(diagnostico.creado) : null,
+    actualizado: diagnostico.actualizado ? new Date(diagnostico.actualizado) : null,
+    especialistaId: diagnostico.especialista_id ?? null,
+    especialistaNombre: diagnostico.especialista_nombre ?? null,
   };
 };
 
@@ -96,6 +130,9 @@ const mapDiagnostico = (diagnostico: DiagnosticoDTO) => {
 
 export const mapCasoDetalle = (dto: CasoDetalleDTO): CasoDetalle => {
   const estadoInfo = estadoCasoMap[dto.estado];
+  const imagenes = dto.imagenes
+    ?.map((imagen) => mapImagen(imagen))
+    .filter((item): item is NonNullable<typeof item> => item !== null) ?? [];
 
   return {
     id: dto.id,
@@ -106,7 +143,11 @@ export const mapCasoDetalle = (dto: CasoDetalleDTO): CasoDetalle => {
     paciente: mapUsuario(dto.paciente),
     especialista: mapUsuario(dto.especialista),
 
-    diagnosticos: dto.diagnosticos.map(mapDiagnostico),
+    diagnosticos: (dto.diagnosticos ?? []).map(mapDiagnostico),
+    diagnosticoEspecialista: mapDiagnosticoEspecialista(
+      dto.diagnostico_especialista,
+    ),
+    imagenes,
 
     creado: new Date(dto.creado),
     actualizado: new Date(dto.actualizado),

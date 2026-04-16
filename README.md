@@ -18,15 +18,14 @@ Las imágenes proporcionadas por el usuario se utilizarán exclusivamente para l
 - Álvaro Guirado Cárdenas
 - Diego Hernando Torralba
 - Javier García Hernández
-- Raúl Gallardo Risco
 
 ## Organización del repositorio
 
 El repositorio se estructura en distintos bloques funcionales, cada uno orientado a una parte concreta del sistema:
 
-- `ml/` → desarrollo, análisis, entrenamiento y evaluación del modelo de machine learning
-- `dashboard/` → cliente web para la interacción con el usuario
-- `monitoring/` → métricas, seguimiento y observabilidad del sistema
+- `apps/backend/` → API Spring Boot y acceso a datos MySQL
+- `apps/frontend/` → cliente web en Vite/React
+- `apps/clasificador/` → servicio de clasificación y entrenamiento en Python/Flask
 - `docs/` → documentación técnica y de diseño
 
 Esta organización busca facilitar la escalabilidad, el mantenimiento y la separación clara de responsabilidades dentro del proyecto.
@@ -48,6 +47,19 @@ Estructura relevante:
 - `apps/clasificador/models/` - modelos entrenados y archivos de configuración
 - `apps/clasificador/data/raw/` - datos crudos del dataset
 - `environment/requirements.txt` - dependencias del proyecto
+
+## Seed inicial de usuarios (backend SQL)
+
+Al arrancar el backend con base de datos limpia, se cargan usuarios iniciales en `apps/backend/src/main/resources/data.sql`:
+
+- 1 administrador
+- 2 especialistas
+- 3 pacientes
+
+Credenciales iniciales comunes:
+
+- Password en claro: `password`
+- Guardada como hash BCrypt en base de datos
 
 ## Requisitos
 
@@ -72,6 +84,23 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r environment/requirements.txt
 ```
+
+## Ejecutar con Docker Compose
+
+El proyecto incluye un stack Docker Compose para arrancar el frontend, backend, base de datos MySQL y el servicio de clasificación.
+
+```bash
+docker compose up --build -d
+```
+
+Servicios y puertos expuestos:
+
+- `frontend` → `5173:5173`
+- `backend` → `8080:8080`
+- `db` → `3306:3306`
+- `clasificador` → `5000:5000`
+
+El backend se construye dentro del contenedor usando Maven, resolviendo todas las dependencias necesarias (incluido el driver de MySQL). El frontend se arranca en modo real con `VITE_USE_MOCK=false`, de modo que consume la API del backend en lugar de datos simulados.
 
 ## Ejecutar API Flask
 

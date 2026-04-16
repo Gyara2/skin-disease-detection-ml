@@ -1,16 +1,19 @@
 package com.example.Backend.DTO;
 
 import com.example.Backend.Rol.Rol;
+import java.time.LocalDateTime;
 
 public record UsuarioResponse(
 
-        Long id,
+        String id,
         String dni,
         String nombre,
         String apellido1,
         String apellido2,
         String email,
-        Integer edad,
-        Rol.TipoRol rol
+        Rol.TipoRol rol,
+        String rolId,
+        LocalDateTime creado,
+        LocalDateTime actualizado
 ) {
 }

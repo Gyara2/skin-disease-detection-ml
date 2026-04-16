@@ -2,11 +2,8 @@ package com.example.Backend.Usuario;
 
 import com.example.Backend.Rol.Rol;
 import jakarta.persistence.*;
-import org.springframework.context.annotation.Primary;
 
-import java.sql.Date;
 import java.time.LocalDateTime;
-import java.util.UUID;
 
 /** * Entidad que representa a un usuario en el sistema. Incluye campos para el DNI, nombre, apellidos, edad, sexo, email, contraseña y rol.
  * Además, tiene campos para la fecha de creación y actualización del usuario.
@@ -46,7 +43,9 @@ public class Usuario {
     // Cuando se crea un nuevo usuario, se establece la fecha de creación al instante actual
     @PrePersist
     protected void onCreate() {
-        creado = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
+        creado = now;
+        actualizado = now;
     }
 
     // Cada vez que se actualiza un usuario, se actualiza la fecha de actualización al instante actual

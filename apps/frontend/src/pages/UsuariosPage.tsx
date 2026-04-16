@@ -305,7 +305,7 @@ export const UsuariosPage = () => {
             const Icon = rolIcon[item.rol];
             const selectedRol = rolesDraft[item.id] ?? item.rol;
             const isUpdating = actualizandoRolUsuarioId === item.id;
-            const isAdminPrincipal = item.id === 'admin-1';
+            const isAdminPrincipal = item.id === '1';
             const isDirty = selectedRol !== item.rol;
 
             return (

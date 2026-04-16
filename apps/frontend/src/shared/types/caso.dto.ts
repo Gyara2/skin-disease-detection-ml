@@ -37,9 +37,12 @@ export interface ValidacionDTO {
 export interface CasoDTO {
   id: string;
   paciente_id: string;
+  paciente_nombre?: string | null;
   especialista_id: string;
+  especialista_nombre?: string | null;
   estado: EstadoCaso;
   diagnosticos_count?: number | null;
+  imagenes_count?: number | null;
   creado: string;
   actualizado: string;
 }

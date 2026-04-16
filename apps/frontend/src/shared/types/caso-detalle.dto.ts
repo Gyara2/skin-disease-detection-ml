@@ -10,11 +10,29 @@ export interface UsuarioDTO {
 
 export interface ImagenDTO {
   id: string;
+  nombre_archivo?: string | null;
   storage_key?: string | null;
   mime_type?: string | null;
   size?: number | null;
   uploaded_at?: string | null;
   src?: string | null;
+  prediccion?: ImagenPrediccionDTO | null;
+}
+
+export interface ImagenPrediccionDTO {
+  id: string;
+  modelo_version?: string | null;
+  resultado?: Record<string, number> | null;
+  creado?: string | null;
+}
+
+export interface DiagnosticoEspecialistaDTO {
+  diagnostico: string;
+  nota?: string | null;
+  creado?: string | null;
+  actualizado?: string | null;
+  especialista_id?: string | null;
+  especialista_nombre?: string | null;
 }
 
 export interface DiagnosticoDTO {
@@ -35,4 +53,6 @@ export interface CasoDetalleDTO {
   paciente: UsuarioDTO;
   especialista: UsuarioDTO;
   diagnosticos: DiagnosticoDTO[];
+  diagnostico_especialista?: DiagnosticoEspecialistaDTO | null;
+  imagenes?: ImagenDTO[];
 }

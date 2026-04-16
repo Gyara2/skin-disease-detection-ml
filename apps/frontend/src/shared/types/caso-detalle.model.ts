@@ -13,11 +13,29 @@ export interface UsuarioCaso {
 
 export interface ImagenCaso {
   id: string;
+  nombreArchivo: string | null;
   storageKey: string | null;
   mimeType: string | null;
   size: number | null;
   uploadedAt: Date | null;
   src: string | null;
+  prediccion: ImagenPrediccionCaso | null;
+}
+
+export interface ImagenPrediccionCaso {
+  id: string;
+  modeloVersion: string | null;
+  resultado: Record<string, number>;
+  creado: Date | null;
+}
+
+export interface DiagnosticoEspecialistaCaso {
+  diagnostico: string;
+  nota: string | null;
+  creado: Date | null;
+  actualizado: Date | null;
+  especialistaId: string | null;
+  especialistaNombre: string | null;
 }
 
 export interface ValidacionCaso {
@@ -62,6 +80,8 @@ export interface CasoDetalle {
   paciente: UsuarioCaso;
   especialista: UsuarioCaso;
   diagnosticos: Diagnostico[];
+  diagnosticoEspecialista: DiagnosticoEspecialistaCaso | null;
+  imagenes: ImagenCaso[];
   creado: Date;
   actualizado: Date;
 }
