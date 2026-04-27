@@ -1,4 +1,4 @@
-# Skin Disease Model Detector (SDMD)
+# Skin Disease Detection - ML
 
 ## Objetivo
 
