@@ -28,6 +28,7 @@ services:
     image: mysql:8.0
     restart: always
     environment:
+      TZ: Europe/Madrid
       MYSQL_DATABASE: sistema_diagnostico
       MYSQL_ROOT_PASSWORD: Root
       MYSQL_USER: user_spring
@@ -49,7 +50,11 @@ services:
     ports:
       - '8080:8080'
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/sistema_diagnostico?allowPublicKeyRetrieval=true&useSSL=false
+      - TZ=Europe/Madrid
+      # Forzamos a la JVM de Java a usar la zona horaria correcta
+      - JAVA_OPTS=-Duser.timezone=Europe/Madrid
+      # Añadimos serverTimezone a la URL para evitar conflictos con MySQL
+      - SPRING_DATASOURCE_URL=jdbc:mysql://db:3306/sistema_diagnostico?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Europe/Madrid
       - SPRING_DATASOURCE_USERNAME=user_spring
       - SPRING_DATASOURCE_PASSWORD=user_password
       - CLASSIFIER_API_URL=http://clasificador:5000/api
@@ -67,6 +72,7 @@ services:
       - ./apps/clasificador/models:/app/models
       - ./apps/clasificador/data:/app/data
     environment:
+      - TZ=Europe/Madrid
       - PYTHONUNBUFFERED=1
 
 volumes:

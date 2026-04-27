@@ -7,6 +7,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.boot.security.autoconfigure.UserDetailsServiceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
 
@@ -15,11 +16,9 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-@SpringBootApplication
+@SpringBootApplication(exclude = { UserDetailsServiceAutoConfiguration.class })
 public class TfgIfpApplication {
-
     public static void main(String[] args) {
-
         SpringApplication.run(TfgIfpApplication.class, args);
     }
 

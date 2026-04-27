@@ -26,7 +26,24 @@ export interface CrearUsuarioInput {
   apellido1: string;
   apellido2: string;
   email: string;
+  password: string;
   rol: RolGestionable;
+}
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  email: string;
+  nombre: string;
+  apellido1: string;
+  apellido2: string;
+  rol: Rol;
+  rolId: string;
+  id: string;
 }
 
 export interface AsignarRolUsuarioInput {

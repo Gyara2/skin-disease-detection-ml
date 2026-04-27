@@ -16,7 +16,7 @@ public class Validacion {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name="validacion_id")
-    private Long validacionId;
+    private UUID validacionId;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "prediccion_id")

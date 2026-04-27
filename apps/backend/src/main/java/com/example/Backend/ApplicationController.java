@@ -5,6 +5,8 @@ import com.example.Backend.DTO.CasoDetalleResponse;
 import com.example.Backend.DTO.CasoDiagnosticoRequest;
 import com.example.Backend.DTO.CasoListItemResponse;
 import com.example.Backend.DTO.CasoUpsertRequest;
+import com.example.Backend.DTO.LoginRequest;
+import com.example.Backend.DTO.LoginResponse;
 import com.example.Backend.DTO.NewCasoRequest;
 import com.example.Backend.DTO.NewUserRequest;
 import com.example.Backend.DTO.UsuarioCreateRequest;
@@ -13,12 +15,11 @@ import com.example.Backend.DTO.UsuarioRolUpdateRequest;
 import com.example.Backend.Rol.Rol;
 import com.example.Backend.Rol.RolService;
 import com.example.Backend.Security.JwtUtil;
-import com.example.Backend.Security.SecurityConfig;
 import com.example.Backend.Usuario.Usuario;
 import com.example.Backend.Usuario.UsuarioService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -49,17 +50,18 @@ public class ApplicationController {
     private final UsuarioService usuarioService;
     private final RolService rolService;
     private final CasoService casoService;
-
-    private final BCryptPasswordEncoder encoder = SecurityConfig.passwordEncoder();
+    private final PasswordEncoder encoder ;
 
     public ApplicationController(
             UsuarioService usuarioService,
             RolService rolService,
-            CasoService casoService
+            CasoService casoService,
+            PasswordEncoder encoder
     ) {
         this.usuarioService = usuarioService;
         this.rolService = rolService;
         this.casoService = casoService;
+        this.encoder = encoder;
     }
 
     @GetMapping("/usuarios")
@@ -208,20 +210,36 @@ public class ApplicationController {
         }
     }
 
-    @GetMapping("/LogIn")
-    public ResponseEntity<String> logIn(@RequestParam String email, @RequestParam String password) {
+    @PostMapping("/LogIn")
+    public ResponseEntity<?> logIn(@RequestBody LoginRequest request) {
         try {
-            Usuario usuario = usuarioService.findByEmail(email);
+            if (request == null || request.email() == null || request.password() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body("El correo y la contraseña son obligatorios.");
+            }
+            
+            Usuario usuario = usuarioService.findByEmail(request.email().trim().toLowerCase());
             if (usuario == null) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body("Usuario no encontrado con el correo: " + email);
+                        .body("Usuario no encontrado con el correo: " + request.email());
             }
-            if (!encoder.matches(password, usuario.getPassword())) {
+            if (!encoder.matches(request.password(), usuario.getPassword())) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .body("Contraseña incorrecta para el correo: " + email);
+                        .body("Contraseña incorrecta.");
             }
             String token = getToken(usuario);
-            return ResponseEntity.ok("Inicio de sesión exitoso para el usuario con correo: " + email + ". Token: " + token);
+            
+            LoginResponse response = new LoginResponse(
+                    token,
+                    usuario.getEmail(),
+                    usuario.getNombre(),
+                    usuario.getApellido1(),
+                    usuario.getApellido2(),
+                    usuario.getRol().getNombre().toString(),
+                    usuario.getRol().getId().toString(),
+                    usuario.getId()
+            );
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body("Error de autenticación: " + e.getMessage());
