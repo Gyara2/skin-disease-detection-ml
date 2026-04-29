@@ -120,7 +120,7 @@ export const MainLayout = () => {
               </div>
             </NavLink>
 
-            {usuario?.rol === 'ADMIN' ? (
+            {usuario?.rol === 'ADMIN' || usuario?.rol === 'ESPECIALISTA' ? (
               <NavLink
                 to='/usuarios'
                 className={({ isActive }) =>
@@ -137,7 +137,7 @@ export const MainLayout = () => {
                 <div>
                   <p className='font-medium'>Usuarios</p>
                   <p className='text-xs text-slate-400'>
-                    Alta, listado y roles
+                    {usuario?.rol === 'ADMIN' ? 'Alta, listado y roles' : 'Alta de usuarios'}
                   </p>
                 </div>
               </NavLink>
