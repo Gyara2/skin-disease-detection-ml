@@ -39,8 +39,8 @@ Write-Host "Docker está listo." -ForegroundColor Green
 # Indicamos los puertos que vamos a usar para avisar si alguno está ocupado
 # 3306: MySQL
 # 8080: Backend Spring Boot
-# 5000: Frontend React 
-# 5173: Modelo IA
+# 5000: Modelo IA 
+# 5173: Frontend 
 $ports = @(3306, 8080, 5000, 5173) 
 # Para cada puerto establecido, comprobamos si está en uso. 
 # Si lo está, avisamos al usuario pero no salimos del script
