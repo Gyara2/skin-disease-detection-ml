@@ -12,6 +12,7 @@ import com.example.Backend.DTO.RequestData;
 import com.example.Backend.Diccionario.ClasificacionDermatologica;
 import com.example.Backend.Imagen.Imagen;
 import com.example.Backend.Imagen.ImagenRepository;
+import com.example.Backend.Metrics.PredictionMetrics;
 import com.example.Backend.Prediccion.Prediccion;
 import com.example.Backend.Prediccion.PrediccionRepository;
 import com.example.Backend.Rol.Rol;
@@ -41,19 +42,22 @@ public class CasoService {
         private final ImagenRepository imagenRepository;
         private final PrediccionRepository prediccionRepository;
         private final String classifierApiUrl;
+        private final PredictionMetrics predictionMetrics;
 
         public CasoService(
                 CasoRepository casoRepository,
                 UsuarioRepository usuarioRepository,
                 ImagenRepository imagenRepository,
                 PrediccionRepository prediccionRepository,
-                @Value("${classifier.api.url:http://localhost:5000/api}") String classifierApiUrl
+                @Value("${classifier.api.url:http://localhost:5000/api}") String classifierApiUrl,
+                PredictionMetrics predictionMetrics
         ) {
             this.casoRepository = casoRepository;
             this.usuarioRepository = usuarioRepository;
             this.imagenRepository = imagenRepository;
             this.prediccionRepository = prediccionRepository;
             this.classifierApiUrl = classifierApiUrl;
+            this.predictionMetrics = predictionMetrics;
         }
 
         @Transactional(readOnly = true)
@@ -228,38 +232,40 @@ public class CasoService {
 
         private Map<String, Double> getPredictionTop3(Imagen imagen) {
             try {
-                String imagenBase64 = Base64.getEncoder().encodeToString(imagen.getDatosArchivo());
-                WebClient webClient = WebClient.create(classifierApiUrl);
-                ClasificacionDermatologica result = webClient.post()
-                        .uri("/predict")
-                        .bodyValue(new RequestData(imagenBase64, imagen.getImagenId()))
-                        .retrieve()
-                        .bodyToMono(ClasificacionDermatologica.class)
-                        .block();
+                return predictionMetrics.recordPrediction(() -> {
+                    String imagenBase64 = Base64.getEncoder().encodeToString(imagen.getDatosArchivo());
+                    WebClient webClient = WebClient.create(classifierApiUrl);
+                    ClasificacionDermatologica result = webClient.post()
+                            .uri("/predict")
+                            .bodyValue(new RequestData(imagenBase64, imagen.getImagenId()))
+                            .retrieve()
+                            .bodyToMono(ClasificacionDermatologica.class)
+                            .block();
 
-                if (result == null) {
-                    return Map.of();
-                }
+                    if (result == null) {
+                        return Map.of();
+                    }
 
-                Map<String, Double> fullResult = new LinkedHashMap<>();
-                fullResult.put("Melanoma", safeDouble(result.mel()));
-                fullResult.put("Nevus", safeDouble(result.nv()));
-                fullResult.put("QueratosisActinica", safeDouble(result.akiec()));
-                fullResult.put("QueratosisSeborreica", safeDouble(result.bkl()));
-                fullResult.put("CarcinomaBasocelular", safeDouble(result.bcc()));
-                fullResult.put("LesionVascular", safeDouble(result.vasc()));
-                fullResult.put("Dermatofibroma", safeDouble(result.df()));
+                    Map<String, Double> fullResult = new LinkedHashMap<>();
+                    fullResult.put("Melanoma", safeDouble(result.mel()));
+                    fullResult.put("Nevus", safeDouble(result.nv()));
+                    fullResult.put("QueratosisActinica", safeDouble(result.akiec()));
+                    fullResult.put("QueratosisSeborreica", safeDouble(result.bkl()));
+                    fullResult.put("CarcinomaBasocelular", safeDouble(result.bcc()));
+                    fullResult.put("LesionVascular", safeDouble(result.vasc()));
+                    fullResult.put("Dermatofibroma", safeDouble(result.df()));
 
-                return fullResult.entrySet()
-                        .stream()
-                        .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
-                        .limit(3)
-                        .collect(Collectors.toMap(
-                                Map.Entry::getKey,
-                                Map.Entry::getValue,
-                                (left, right) -> left,
-                                LinkedHashMap::new
-                        ));
+                    return fullResult.entrySet()
+                            .stream()
+                            .sorted(Map.Entry.<String, Double>comparingByValue().reversed())
+                            .limit(3)
+                            .collect(Collectors.toMap(
+                                    Map.Entry::getKey,
+                                    Map.Entry::getValue,
+                                    (left, right) -> left,
+                                    LinkedHashMap::new
+                            ));
+                });
             } catch (Exception ignored) {
                 return Map.of();
             }
