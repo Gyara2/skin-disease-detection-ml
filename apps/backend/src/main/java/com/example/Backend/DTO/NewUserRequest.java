@@ -9,7 +9,6 @@ package com.example.Backend.DTO;
  * @param password    Contraseña del usuario.
  * @param email       Correo electrónico del usuario.
  * @param edad        Edad del usuario.
- * @param sexo        Sexo del usuario ("M" para masculino, "F" para femenino).
  * @param rol         Rol del usuario ("ADMIN", "DOCTOR", "PACIENTE").
  */
 public record NewUserRequest(
@@ -20,6 +19,5 @@ public record NewUserRequest(
          String password,
          String email,
          Integer edad,
-         String sexo,
          String rol
 ) {}
