@@ -12,6 +12,8 @@ C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java
 C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\DTO\CasoListItemResponse.java
 C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\DTO\CasoResponse.java
 C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\DTO\CasoUpsertRequest.java
+C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\DTO\LoginRequest.java
+C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\DTO\LoginResponse.java
 C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\DTO\ModificarCaso.java
 C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\DTO\NewCasoRequest.java
 C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\DTO\NewCasoResponse.java
@@ -33,7 +35,7 @@ C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java
 C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\Rol\RolRepository.java
 C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\Rol\RolService.java
 C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\Security\JwtUtil.java
-C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\Security\SecurityConfig.java
+C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\SecurityConfig.java
 C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\TfgIfpApplication.java
 C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\Usuario\Usuario.java
 C:\Users\javig\Desktop\test\skin-disease-detection-ml\apps\backend\src\main\java\com\example\Backend\Usuario\UsuarioRepository.java

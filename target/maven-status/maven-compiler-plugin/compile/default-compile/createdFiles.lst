@@ -12,8 +12,10 @@ com\example\Backend\Usuario\UsuarioService$1.class
 com\example\Backend\DTO\RequestData.class
 com\example\Backend\Prediccion\Prediccion.class
 com\example\Backend\Caso\CasoService.class
+com\example\Backend\DTO\LoginRequest.class
 com\example\Backend\Usuario\UsuarioRepository.class
 com\example\Backend\Prediccion\PrediccionRepository.class
+com\example\Backend\SecurityConfig.class
 com\example\Backend\Caso\Caso.class
 com\example\Backend\Metrics\PredictionMetrics$PredictionAction.class
 com\example\Backend\Rol\RolRepository.class
@@ -43,4 +45,4 @@ com\example\Backend\Usuario\UsuarioService.class
 com\example\Backend\DTO\NewUserRequest.class
 com\example\Backend\DTO\CasoDetalleImagenResponse.class
 com\example\Backend\Caso\CasoRepository.class
-com\example\Backend\Security\SecurityConfig.class
+com\example\Backend\DTO\LoginResponse.class
