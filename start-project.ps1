@@ -41,7 +41,9 @@ Write-Host "Docker está listo." -ForegroundColor Green
 # 8080: Backend Spring Boot
 # 5000: Modelo IA 
 # 5173: Frontend 
-$ports = @(3306, 8080, 5000, 5173) 
+# 5000: Modelo IA 
+# 5173: Frontend 
+$ports = @(3306, 8080, 5000, 5173)
 # Para cada puerto establecido, comprobamos si está en uso. 
 # Si lo está, avisamos al usuario pero no salimos del script
 foreach ($port in $ports) {
