@@ -51,6 +51,7 @@ export const UsuariosPage = () => {
   const [nuevoApellido1, setNuevoApellido1] = useState('');
   const [nuevoApellido2, setNuevoApellido2] = useState('');
   const [nuevoEmail, setNuevoEmail] = useState('');
+  const [nuevoPassword, setNuevoPassword] = useState('');
   const [nuevoRol, setNuevoRol] = useState<RolGestionable>('PACIENTE');
   const [crearUsuarioFeedback, setCrearUsuarioFeedback] = useState<string | null>(null);
   const [rolesDraft, setRolesDraft] = useState<Record<string, Rol>>({});
@@ -96,6 +97,7 @@ export const UsuariosPage = () => {
         apellido1: nuevoApellido1,
         apellido2: nuevoApellido2,
         email: nuevoEmail,
+        password: nuevoPassword,
         rol: nuevoRol,
       });
 
@@ -104,6 +106,7 @@ export const UsuariosPage = () => {
       setNuevoApellido1('');
       setNuevoApellido2('');
       setNuevoEmail('');
+      setNuevoPassword('');
       setCrearUsuarioFeedback(
         `Usuario "${getUsuarioNombreCompleto(nuevoUsuario)}" creado correctamente.`,
       );
@@ -149,9 +152,16 @@ export const UsuariosPage = () => {
     return <Navigate to='/login' replace />;
   }
 
-  if (usuario.rol !== 'ADMIN') {
+  if (usuario.rol !== 'ADMIN' && usuario.rol !== 'ESPECIALISTA') {
     return <Navigate to='/casos' replace />;
   }
+
+  const isAdmin = usuario.rol === 'ADMIN';
+  const isEspecialista = usuario.rol === 'ESPECIALISTA';
+
+  const opcionesFiltradas = isEspecialista 
+  ? rolGestionableOptions.filter(opt => opt.value !== 'ESPECIALISTA')
+  : rolGestionableOptions;
 
   if (isLoading) {
     return (
@@ -253,11 +263,25 @@ export const UsuariosPage = () => {
             />
           </label>
 
+          <label className='rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 md:col-span-2'>
+            <span className='block text-xs font-medium uppercase tracking-[0.24em] text-slate-500'>
+              Contraseña
+            </span>
+            <input
+              type='password'
+              value={nuevoPassword}
+              onChange={(event) => setNuevoPassword(event.target.value)}
+              placeholder='Contraseña inicial'
+              className='mt-2 w-full bg-transparent text-sm text-slate-950 outline-none placeholder:text-slate-400'
+              disabled={crearUsuarioMutation.isPending}
+            />
+          </label>
+
           <CustomSelect
             label='Rol'
             value={nuevoRol}
             onChange={setNuevoRol}
-            options={rolGestionableOptions}
+            options={opcionesFiltradas} 
             disabled={crearUsuarioMutation.isPending}
             containerClassName='rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 md:col-span-1'
           />
@@ -269,7 +293,8 @@ export const UsuariosPage = () => {
               !nuevoDni.trim() ||
               !nuevoNombre.trim() ||
               !nuevoApellido1.trim() ||
-              !nuevoEmail.trim()
+              !nuevoEmail.trim() ||
+              !nuevoPassword.trim()
             }
             className='inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-medium text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-300 md:self-end'
           >
@@ -289,6 +314,7 @@ export const UsuariosPage = () => {
         ) : null}
       </section>
 
+      {isAdmin && (
       <section className='overflow-hidden rounded-[28px] border border-slate-200 bg-white/90 shadow-[0_24px_60px_-42px_rgba(15,23,42,0.28)]'>
         <div className='flex items-center justify-between border-b border-slate-100 px-5 py-4'>
           <p className='inline-flex items-center gap-2 text-xs font-medium uppercase tracking-[0.24em] text-slate-500'>
@@ -360,6 +386,15 @@ export const UsuariosPage = () => {
           })}
         </div>
       </section>
+      )}
+
+      {isEspecialista && (
+        <div className='rounded-[28px] border border-amber-100 bg-amber-50/90 p-5'>
+          <p className='text-sm text-amber-800'>
+            Como especialista, solo tienes acceso al registro de nuevos usuarios. No puedes ver el listado ni modificar roles.
+          </p>
+        </div>
+      )}
     </div>
   );
 };

@@ -11,9 +11,11 @@ import com.example.Backend.DTO.UsuarioResponse;
 import com.example.Backend.DTO.UsuarioRolUpdateRequest;
 import com.example.Backend.Rol.Rol;
 import com.example.Backend.Rol.RolService;
+import com.example.Backend.Security.JwtUtil;
 import com.example.Backend.Usuario.UsuarioService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -53,6 +55,8 @@ class ApplicationControllerTest {
     @MockBean
     private CasoService casoService;
 
+    @MockBean
+    private JwtUtil jwtUtil;
     @Test
     void shouldCreateCasoWhenIdIsNull() throws Exception {
         CasoDetalleResponse response = buildCasoDetalleResponse("15");

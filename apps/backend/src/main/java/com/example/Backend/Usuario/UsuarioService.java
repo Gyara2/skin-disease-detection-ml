@@ -5,8 +5,8 @@ import com.example.Backend.DTO.UsuarioResponse;
 import com.example.Backend.DTO.UsuarioRolUpdateRequest;
 import com.example.Backend.Rol.Rol;
 import com.example.Backend.Rol.RolService;
-import com.example.Backend.Security.SecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -22,9 +22,12 @@ public class UsuarioService {
     private UsuarioRepository usuarioRepository;
     @Autowired
     private RolService rolService;
+    private final PasswordEncoder SecurityConfig;
 
-    private static final String TEMPORARY_PASSWORD = "Temporal123!";
 
+    public UsuarioService(PasswordEncoder SecurityConfig) {
+        this.SecurityConfig = SecurityConfig;
+    }
     public List<UsuarioResponse> getAllUsuarios() {
         return usuarioRepository.findAll()
                 .stream()
@@ -69,7 +72,12 @@ public class UsuarioService {
         usuario.setApellido2(request.apellido2() == null ? "" : request.apellido2().trim());
         usuario.setEmail(request.email().trim().toLowerCase(Locale.ROOT));
         usuario.setEdad(0);
-        usuario.setPassword(SecurityConfig.passwordEncoder().encode(TEMPORARY_PASSWORD));
+        
+        String password = request.password();
+        if (password == null || password.trim().isEmpty()) {
+            throw new IllegalArgumentException("La contraseña es obligatoria.");
+        }
+        usuario.setPassword(SecurityConfig.encode(password.trim()));
         usuario.setRol(rol);
 
         return toResponse(usuarioRepository.save(usuario));
